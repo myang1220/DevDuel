@@ -1,0 +1,38 @@
+{
+	"mainMethod": {
+	"java": "public static void main(String[] args) {<TESTCODE>}",
+		"c++": "int main() {<TESTCODE>\nreturn 0;}",
+		"python": "",
+		"javascript": "<TESTCODE>"
+},
+	"initString": {
+		"java": "String storage = \"\\nSTORAGE=\";",
+		"c++": "",
+		"javascript": "let storage =\"\\nSTORAGE=\";  let result = '';",
+		"python": "storage = \"\\nSTORAGE=\""
+	},
+	"appendString": {
+		"java": "storage += String.valueOf(<VAL>) + \"==SEP==\";",
+		"c++": "",
+		"javascript": "result = <VAL>; storage += ((typeof result === \"string\" || typeof result === \"number\")? result : (result instanceof Set)? `{${[...result].join(', ')}}`:JSON.stringify((result instanceof Array) ? result: Object.fromEntries(result))) + \"==SEP==\";",
+		"python": "storage = storage + str(<VAL>) + \"==SEP==\""
+	},
+	"imports": {
+		"java": "import java.util.*;",
+		"c++": "\n",
+		"javascript": "\n",
+		"python": "\n"
+	},
+	"printString": {
+		"java": "System.out.println(storage);",
+		"c++": "",
+		"javascript": "console.log(storage);",
+		"python": "print(storage)"
+	},
+	"extension": {
+		"java": ".java",
+		"c++": ".c++",
+		"javascript": ".js",
+		"python": ".py"
+	}
+}

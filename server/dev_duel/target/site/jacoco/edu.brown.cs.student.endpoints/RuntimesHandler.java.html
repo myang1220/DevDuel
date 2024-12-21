@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RuntimesHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">s0</a> &gt; <a href="index.source.html" class="el_package">edu.brown.cs.student.endpoints</a> &gt; <span class="el_source">RuntimesHandler.java</span></div><h1>RuntimesHandler.java</h1><pre class="source lang-java linenums">package edu.brown.cs.student.endpoints;
+
+import edu.brown.cs.student.code_engine.ICodeEngineApi;
+import edu.brown.cs.student.util.JsonUtil;
+import java.util.HashMap;
+import java.util.Map;
+import spark.Request;
+import spark.Response;
+import spark.Route;
+
+public class RuntimesHandler implements Route {
+  private final ICodeEngineApi datasource;
+
+  // private final IStorage storageManager; had to comment this for now. Having problems with
+  // firestore.
+
+<span class="nc" id="L17">  public RuntimesHandler(ICodeEngineApi datasource) {</span>
+<span class="nc" id="L18">    this.datasource = datasource;</span>
+<span class="nc" id="L19">  }</span>
+
+  @Override
+  /**
+   * Handlers the GET request to obtain programming languages and versions from the provided
+   * datasource.
+   *
+   * @param request the HTTP request
+   * @param response the HTTP response
+   * @return json response of the request of api query
+   */
+  public Object handle(Request request, Response response) throws Exception {
+<span class="nc" id="L31">    System.out.println(&quot;GET: &quot; + request.url());</span>
+    // Provide information about request
+<span class="nc" id="L33">    Map&lt;String, Object&gt; requestInfoMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L34">    requestInfoMap.put(&quot;url&quot;, request.url());</span>
+<span class="nc" id="L35">    requestInfoMap.put(&quot;timestamp&quot;, System.currentTimeMillis());</span>
+
+    // handle responseBody
+<span class="nc" id="L38">    Map&lt;String, Object&gt; responseMap = this.datasource.getRuntimes();</span>
+<span class="nc" id="L39">    responseMap.put(&quot;timestamp&quot;, System.currentTimeMillis());</span>
+<span class="nc" id="L40">    responseMap.put(&quot;requestInfo&quot;, requestInfoMap);</span>
+<span class="nc" id="L41">    return JsonUtil.toMoshiJson(responseMap);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

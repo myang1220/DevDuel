@@ -1,0 +1,7 @@
+{
+    "default": "def FUNCTION_NAME(ARGS) : -> RETURN_TYPE",
+    "java": "public class Solution {\n\tpublic RETURN_TYPE FUNCTION_NAME(ARGS) {\n }\n}" 
+  
+}
+
+

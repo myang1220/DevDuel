@@ -1,0 +1,561 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>PistonCodeEngineApi.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">s0</a> &gt; <a href="index.source.html" class="el_package">edu.brown.cs.student.code_engine</a> &gt; <span class="el_source">PistonCodeEngineApi.java</span></div><h1>PistonCodeEngineApi.java</h1><pre class="source lang-java linenums">package edu.brown.cs.student.code_engine;
+
+import com.squareup.moshi.Types;
+import edu.brown.cs.student.storage.CacheStorage;
+import edu.brown.cs.student.util.AdapterRecords.ApiResponseRecord;
+import edu.brown.cs.student.util.AdapterRecords.CodeRecord;
+import edu.brown.cs.student.util.AdapterRecords.RuntimeRecord;
+import edu.brown.cs.student.util.AdapterRecords.TestRecord;
+import edu.brown.cs.student.util.JsonUtil;
+import edu.brown.cs.student.util.TypeResolverUtil;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.math.RoundingMode;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import org.jetbrains.annotations.NotNull;
+
+/**
+ * The PistonApiDatasource object models the response object returned from querying the pistonApi.
+ */
+// Runners should have access to the cache so that they can get test and code stuff from it..
+public class PistonCodeEngineApi implements ICodeEngineApi {
+  private final CacheStorage&lt;Map&lt;String, String&gt;&gt; cache;
+<span class="nc" id="L38">  private final String PISTON_API_URL = &quot;https://emkc.org/api/v2/piston/&quot;;</span>
+<span class="nc" id="L39">  private final String helperCodesPath = &quot;data/codemap.json&quot;;</span>
+  private final Map&lt;String, Map&lt;String, String&gt;&gt;
+      helperCodeMap; // contains some predefined language specific code string
+
+<span class="nc" id="L43">  public PistonCodeEngineApi(CacheStorage&lt;Map&lt;String, String&gt;&gt; cache) {</span>
+<span class="nc" id="L44">    this.cache = cache;</span>
+<span class="nc" id="L45">    this.helperCodeMap = JsonUtil.readJsonToMap(this.helperCodesPath);</span>
+<span class="nc" id="L46">  }</span>
+
+  @Override
+  public Map&lt;String, Object&gt; getRuntimes() {
+    try {
+<span class="nc" id="L51">      URI uri = new URI(PISTON_API_URL + &quot;runtimes&quot;);</span>
+<span class="nc" id="L52">      URL url = uri.toURL();</span>
+<span class="nc" id="L53">      HttpURLConnection conn = (HttpURLConnection) url.openConnection();</span>
+<span class="nc" id="L54">      conn.setRequestProperty(&quot;Content-Type&quot;, &quot;application/json&quot;);</span>
+
+      // implicitly open connection and get the response code.
+<span class="nc" id="L57">      int status = conn.getResponseCode();</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">      if (status == 200) {</span>
+<span class="nc" id="L59">        try (InputStream is = conn.getInputStream()) {</span>
+          // Read and filter api response
+<span class="nc" id="L61">          String apiResponse = new String(is.readAllBytes(), StandardCharsets.UTF_8);</span>
+<span class="nc" id="L62">          return this.filterResponse(apiResponse);</span>
+        }
+      }
+
+<span class="nc" id="L66">    } catch (URISyntaxException | MalformedURLException e) {</span>
+<span class="nc" id="L67">      System.out.println(e.getMessage());</span>
+<span class="nc" id="L68">      e.printStackTrace();</span>
+<span class="nc" id="L69">    } catch (IOException e) {</span>
+<span class="nc" id="L70">      System.out.println(e.getMessage()); // update this to return a server error object</span>
+<span class="nc" id="L71">    }</span>
+<span class="nc" id="L72">    return null;</span>
+  }
+
+  /**
+   * Filter api response for the required runtimes.
+   *
+   * @param apiResponse api response to filter for runtime
+   * @return a list of api recored
+   */
+  private Map&lt;String, Object&gt; filterResponse(String apiResponse) {
+    // For proof of concept: use 5 languages for now;
+<span class="nc" id="L83">    Set&lt;String&gt; requiredRuntimes = Set.of(&quot;python&quot;, &quot;javascript&quot;, &quot;java&quot;);</span>
+<span class="nc" id="L84">    List&lt;RuntimeRecord&gt; responseList = JsonUtil.toObjectList(apiResponse, RuntimeRecord.class);</span>
+
+<span class="nc bnc" id="L86" title="All 2 branches missed.">    if (responseList == null) {</span>
+<span class="nc" id="L87">      return JsonUtil.generateErrorMap(&quot;code engine error&quot;);</span>
+    }
+
+<span class="nc" id="L90">    List&lt;RuntimeRecord&gt; outputList = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">    for (RuntimeRecord runtime : responseList) {</span>
+<span class="nc bnc" id="L92" title="All 2 branches missed.">      if (requiredRuntimes.contains(runtime.language())) {</span>
+<span class="nc" id="L93">        outputList.add(runtime);</span>
+      }
+<span class="nc" id="L95">    }</span>
+
+<span class="nc" id="L97">    Map&lt;String, Object&gt; clientResponse = new LinkedHashMap&lt;&gt;();</span>
+<span class="nc" id="L98">    clientResponse.put(&quot;response_type&quot;, &quot;success&quot;);</span>
+<span class="nc" id="L99">    clientResponse.put(&quot;body&quot;, outputList);</span>
+<span class="nc" id="L100">    return clientResponse;</span>
+  }
+
+  /**
+   * Queries piston api to run code
+   *
+   * @return
+   */
+  public Map&lt;String, Object&gt; runCode(CodeRecord problem) {
+<span class="nc" id="L109">    String key = &quot;Problems/&quot; + problem.name();</span>
+
+    try {
+<span class="nc" id="L112">      List&lt;TestRecord&gt; testsRecordList =</span>
+<span class="nc" id="L113">          JsonUtil.toObjectList(this.cache.get(key).get(&quot;test&quot;), TestRecord.class);</span>
+<span class="nc bnc" id="L114" title="All 2 branches missed.">      if (testsRecordList == null) {</span>
+<span class="nc" id="L115">        System.out.println(&quot;__TESTS_NOT_FOUND_CACHE_ERR__: code engine timeout&quot;);</span>
+<span class="nc" id="L116">        return JsonUtil.generateErrorMap(</span>
+            &quot;Code engine timeout: Make sure you aren't running your own code...&quot;);
+      }
+<span class="nc" id="L119">      Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</span>
+
+      //      // TestRecord prefliRecordTest = testsRecordList.get(0);
+      //      ApiResponseRecord preflightResponse = this.preFlightCode(problem,
+      // testsRecordList.get(0));
+      //      // check if there's error due to malformed code
+      //      if (preflightResponse.message() != null) {
+      //        System.err.println(&quot;__PREFLIGHT_RUN_ERR__: &quot; + preflightResponse.message());
+      //        return JsonUtil.generateErrorMap(preflightResponse.message());
+      //      }
+      //      // check if code run with error
+      //      String stderr = preflightResponse.run().stderr();
+      //      System.out.println(&quot;STDERR: &quot; + stderr);
+      //      if (codeRunWithError(stderr)) {
+      //        String output = preflightResponse.run().stderr();
+      //        responseMap.put(&quot;response_type&quot;, &quot;bug&quot;);
+      //        responseMap.put(&quot;output&quot;, toStdIOList(output));
+      //        return responseMap;
+      //      }
+      // Time to run code with
+
+<span class="nc" id="L140">      ApiResponseRecord testRunResponse = this.runCodeWithTest(problem);</span>
+      // check for any malformed code json error
+<span class="nc bnc" id="L142" title="All 2 branches missed.">      if (testRunResponse.message() != null) {</span>
+<span class="nc" id="L143">        String message = testRunResponse.message();</span>
+<span class="nc" id="L144">        System.err.println(message);</span>
+<span class="nc" id="L145">        return JsonUtil.generateErrorMap(&quot;Internal server error.&quot;);</span>
+      }
+
+      // check for any execution errors
+<span class="nc" id="L149">      String stderr = testRunResponse.run().stderr();</span>
+<span class="nc" id="L150">      Map&lt;String, List&lt;String&gt;&gt; stioMap = this.toStdIOMap(testRunResponse.run().output());</span>
+<span class="nc" id="L151">      List&lt;String&gt; outputList = stioMap.get(&quot;output&quot;);</span>
+<span class="nc bnc" id="L152" title="All 2 branches missed.">      if (codeRunWithError(stderr)) {</span>
+<span class="nc" id="L153">        System.err.println(&quot;__TEST_RUN_HAS_ERROR__:&quot; + outputList);</span>
+<span class="nc" id="L154">        responseMap.put(&quot;response_type&quot;, &quot;bug&quot;);</span>
+<span class="nc" id="L155">        responseMap.put(&quot;output&quot;, outputList);</span>
+<span class="nc" id="L156">        return responseMap;</span>
+      }
+      // remove and return the storage string output;
+<span class="nc" id="L159">      String resultStorageString = stioMap.get(&quot;storage&quot;).get(0);</span>
+<span class="nc bnc" id="L160" title="All 2 branches missed.">      if (!resultStorageString.contains(&quot;STORAGE=&quot;)) {</span>
+<span class="nc" id="L161">        System.out.println(&quot;__MISSING_STORAGE=_STRING_ERR__: no storage string in test result&quot;);</span>
+<span class="nc" id="L162">        return JsonUtil.generateErrorMap(&quot;Internal server error.&quot;);</span>
+      }
+<span class="nc" id="L164">      Map&lt;String, Object&gt; testValidationMap =</span>
+<span class="nc" id="L165">          this.getTestResults(resultStorageString, key, problem.language());</span>
+<span class="nc" id="L166">      responseMap.put(&quot;tests&quot;, testValidationMap.get(&quot;tests&quot;));</span>
+<span class="nc" id="L167">      responseMap.put(&quot;score&quot;, testValidationMap.get(&quot;score&quot;));</span>
+<span class="nc" id="L168">      responseMap.put(&quot;output&quot;, outputList);</span>
+<span class="nc" id="L169">      responseMap.put(&quot;response_type&quot;, &quot;success&quot;);</span>
+<span class="nc" id="L170">      return responseMap;</span>
+<span class="nc" id="L171">    } catch (Exception e) {</span>
+<span class="nc" id="L172">      System.out.println(&quot;__RUNCODE_ERR__: &quot; + e.getMessage());</span>
+<span class="nc" id="L173">      e.printStackTrace();</span>
+<span class="nc" id="L174">      return JsonUtil.generateErrorMap(&quot;Internal server error.&quot;);</span>
+    }
+  }
+
+  /**
+   * Helper method for dispatching code to api and handling response
+   *
+   * @param payload request payload
+   * @return record of the api response
+   */
+  private ApiResponseRecord dispatchCode(String payload) {
+<span class="nc" id="L185">    System.out.println(&quot;payload &quot; + payload);</span>
+    try {
+<span class="nc" id="L187">      URI uri = new URI(PISTON_API_URL + &quot;execute&quot;);</span>
+<span class="nc" id="L188">      URL url = uri.toURL();</span>
+
+      // throttle request for 5 times
+<span class="nc" id="L191">      int retries = 5;</span>
+<span class="nc" id="L192">      int backoff = 1000; // Initial backoff time in milliseconds</span>
+<span class="nc bnc" id="L193" title="All 2 branches missed.">      for (int i = 0; i &lt; retries; i++) {</span>
+<span class="nc" id="L194">        HttpURLConnection conn = getHttpURLConnection(payload, url);</span>
+
+        // implicitly open connection and read the response
+<span class="nc" id="L197">        int responseCode = conn.getResponseCode();</span>
+<span class="nc bnc" id="L198" title="All 2 branches missed.">        if (responseCode == HttpURLConnection.HTTP_OK) {</span>
+<span class="nc" id="L199">          System.out.println(&quot;Request successful.&quot;);</span>
+          // read Http response
+<span class="nc" id="L201">          return this.readHttpResponsebody(conn);</span>
+<span class="nc bnc" id="L202" title="All 2 branches missed.">        } else if (responseCode == 429) {</span>
+<span class="nc" id="L203">          System.out.println(&quot;Rate limit exceeded. Retrying after &quot; + backoff + &quot; milliseconds.&quot;);</span>
+<span class="nc" id="L204">          Thread.sleep(backoff);</span>
+<span class="nc" id="L205">          backoff *= 2; // Exponential backoff</span>
+        } else {
+<span class="nc" id="L207">          System.out.println(&quot;Error: &quot; + responseCode);</span>
+<span class="nc" id="L208">          break;</span>
+        }
+      }
+
+<span class="nc" id="L212">    } catch (Exception e) {</span>
+<span class="nc" id="L213">      e.printStackTrace();</span>
+<span class="nc" id="L214">    }</span>
+<span class="nc" id="L215">    return new ApiResponseRecord(&quot;code engine error.&quot;, null);</span>
+  }
+
+  @NotNull
+  private HttpURLConnection getHttpURLConnection(String payload, URL url) throws IOException {
+<span class="nc" id="L220">    HttpURLConnection conn = (HttpURLConnection) url.openConnection();</span>
+    // set connection properties
+<span class="nc" id="L222">    conn.setRequestMethod(&quot;POST&quot;);</span>
+<span class="nc" id="L223">    conn.setDoOutput(true);</span>
+<span class="nc" id="L224">    conn.setRequestProperty(&quot;Content-Type&quot;, &quot;application/json&quot;);</span>
+<span class="nc" id="L225">    conn.setRequestProperty(&quot;Accept&quot;, &quot;*&quot;);</span>
+    // send payload with request
+<span class="nc" id="L227">    try (OutputStream os = conn.getOutputStream()) {</span>
+<span class="nc" id="L228">      byte[] input = payload.getBytes(java.nio.charset.StandardCharsets.UTF_8);</span>
+<span class="nc" id="L229">      os.write(input, 0, input.length);</span>
+    }
+<span class="nc" id="L231">    return conn;</span>
+  }
+
+  /**
+   * Split typed code on the last closing brace. This creates room to insert the last
+   *
+   * @param code
+   * @return
+   */
+  private List&lt;String&gt; splitCodeOnClosingBrace(String code) {
+<span class="nc" id="L241">    String strippedCode = code.strip();</span>
+<span class="nc" id="L242">    return List.of(strippedCode.substring(0, strippedCode.length() - 1), &quot;}&quot;);</span>
+  }
+
+  /**
+   * appends the series of test cases to the written code
+   *
+   * @param tests a list of test records
+   * @param problemName name of problem
+   * @return
+   */
+  private List&lt;String&gt; formUnitTestAndExpectedValsFromTestMap(
+      List&lt;TestRecord&gt; tests, String problemName, String language) {
+<span class="nc" id="L254">    StringBuilder testCode = new StringBuilder();</span>
+<span class="nc" id="L255">    StringBuilder expectedValues = new StringBuilder();</span>
+
+    // initialize the string
+<span class="nc" id="L258">    testCode.append(this.helperCodeMap.get(&quot;initString&quot;).get(language)).append('\n');</span>
+<span class="nc" id="L259">    String appendString = this.helperCodeMap.get(&quot;appendString&quot;).get(language);</span>
+<span class="nc bnc" id="L260" title="All 2 branches missed.">    for (TestRecord test : tests) {</span>
+<span class="nc bnc" id="L261" title="All 2 branches missed.">      String params = (language.equalsIgnoreCase(&quot;java&quot;)) ? test.jparams() : test.params();</span>
+<span class="nc" id="L262">      String functionCall = problemName + &quot;(&quot; + params + &quot;)&quot;;</span>
+<span class="nc" id="L263">      String toAppend = appendString.replace(&quot;&lt;VAL&gt;&quot;, functionCall);</span>
+<span class="nc" id="L264">      testCode.append(toAppend).append(&quot;\n&quot;);</span>
+<span class="nc" id="L265">      expectedValues.append(test.expected()).append(&quot;\n&quot;);</span>
+<span class="nc" id="L266">    }</span>
+    // Print out the STORED TEST results;
+<span class="nc" id="L268">    testCode.append(this.helperCodeMap.get(&quot;printString&quot;).get(language)).append(&quot;\n&quot;);</span>
+<span class="nc" id="L269">    return List.of(testCode.toString(), expectedValues.toString());</span>
+  }
+
+  /**
+   * Process raw request payload into a form accepatable by piston api
+   *
+   * @param problem
+   * @return
+   */
+  private ApiResponseRecord runCodeWithTest(CodeRecord problem) {
+<span class="nc" id="L279">    Set&lt;String&gt; classLangs = Set.of(&quot;java&quot;, &quot;c++&quot;);</span>
+    // handle error later
+    // make api request payload map
+<span class="nc" id="L282">    Map&lt;String, Object&gt; apiPayloadMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L283">    apiPayloadMap.put(&quot;language&quot;, problem.language());</span>
+<span class="nc" id="L284">    apiPayloadMap.put(&quot;version&quot;, problem.version());</span>
+
+<span class="nc" id="L286">    String key = &quot;Problems/&quot; + problem.name();</span>
+<span class="nc" id="L287">    List&lt;TestRecord&gt; testsRecordList =</span>
+<span class="nc" id="L288">        JsonUtil.toObjectList(this.cache.get(key).get(&quot;test&quot;), TestRecord.class);</span>
+
+    // handle errors later: probably none of this may be missing
+
+<span class="nc" id="L292">    List&lt;String&gt; unitTestsAndexpectedValsList =</span>
+<span class="nc" id="L293">        this.formUnitTestAndExpectedValsFromTestMap(</span>
+<span class="nc" id="L294">            testsRecordList, problem.name(), problem.language());</span>
+<span class="nc" id="L295">    String unitTestsToAddToUserCode = unitTestsAndexpectedValsList.get(0);</span>
+<span class="nc" id="L296">    String codeToRun = problem.code() + &quot;\n&quot;;</span>
+    // if test has brace, remove the last on end append the tests
+<span class="nc bnc" id="L298" title="All 2 branches missed.">    if (classLangs.contains(problem.language())) {</span>
+<span class="nc" id="L299">      String mainMethod = this.helperCodeMap.get(&quot;mainMethod&quot;).get(problem.language());</span>
+<span class="nc" id="L300">      List&lt;String&gt; codeSplitOnLastBraceList = this.splitCodeOnClosingBrace(codeToRun);</span>
+<span class="nc" id="L301">      codeToRun =</span>
+<span class="nc" id="L302">          codeSplitOnLastBraceList.get(0)</span>
+<span class="nc" id="L303">              + mainMethod.replace(&quot;&lt;TESTCODE&gt;&quot;, unitTestsToAddToUserCode)</span>
+<span class="nc" id="L304">              + codeSplitOnLastBraceList.get(1);</span>
+<span class="nc" id="L305">    } else {</span>
+<span class="nc" id="L306">      codeToRun += &quot;\n&quot; + unitTestsToAddToUserCode;</span>
+    }
+<span class="nc" id="L308">    String payload =</span>
+<span class="nc" id="L309">        this.toPayload(new CodeRecord(&quot;&quot;, problem.language(), problem.version(), codeToRun));</span>
+<span class="nc" id="L310">    return this.dispatchCode(payload);</span>
+  }
+
+  /*
+   * Think about preflighting Later
+   * @param problem
+   * @return
+   */
+  private ApiResponseRecord preFlightCode(CodeRecord problem, TestRecord test) {
+<span class="nc" id="L319">    Set&lt;String&gt; braceLangs = Set.of(&quot;java&quot;, &quot;javascript&quot;, &quot;c++&quot;);</span>
+<span class="nc" id="L320">    String problemName = &quot;greet&quot;;</span>
+<span class="nc" id="L321">    String functionCall = problemName + &quot;(&quot; + test.params() + &quot;);&quot;;</span>
+<span class="nc" id="L322">    String mainMethod = this.helperCodeMap.get(&quot;mainMethod&quot;).get(problem.language());</span>
+<span class="nc" id="L323">    String codeToRun = problem.code();</span>
+<span class="nc bnc" id="L324" title="All 2 branches missed.">    if (braceLangs.contains(problem.language())) {</span>
+<span class="nc" id="L325">      List&lt;String&gt; codeSplitOnLastBrace = this.splitCodeOnClosingBrace(codeToRun);</span>
+<span class="nc" id="L326">      codeToRun =</span>
+<span class="nc" id="L327">          codeSplitOnLastBrace.get(0)</span>
+<span class="nc" id="L328">              + mainMethod.replace(&quot;&lt;TESTCODE&gt;&quot;, functionCall)</span>
+<span class="nc" id="L329">              + codeSplitOnLastBrace.get(1);</span>
+<span class="nc" id="L330">    } else {</span>
+<span class="nc" id="L331">      codeToRun += &quot;\n&quot; + functionCall;</span>
+    }
+<span class="nc" id="L333">    String payload =</span>
+<span class="nc" id="L334">        this.toPayload(</span>
+<span class="nc" id="L335">            new CodeRecord(problem.name(), problem.language(), problem.version(), codeToRun));</span>
+<span class="nc" id="L336">    return this.dispatchCode(payload);</span>
+  }
+
+  /**
+   * Read read the inputstream of the given http connection as a map
+   *
+   * @param conn http connection instance being read;
+   * @return a map the read json response as a java map instance
+   */
+  private ApiResponseRecord readHttpResponsebody(HttpURLConnection conn) throws Exception {
+<span class="nc" id="L346">    try (InputStream is = conn.getInputStream()) {</span>
+      // Read and convert api response into map
+<span class="nc" id="L348">      String response = new String(is.readAllBytes(), &quot;utf-8&quot;);</span>
+<span class="nc" id="L349">      System.out.println(response);</span>
+<span class="nc" id="L350">      return JsonUtil.toObject(response, ApiResponseRecord.class);</span>
+    }
+  }
+
+  /**
+   * Converts problem record to payload.
+   *
+   * @param problem
+   * @return a json format of the final payload map
+   */
+  private String toPayload(CodeRecord problem) {
+<span class="nc" id="L361">    Map&lt;String, Object&gt; payloadMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L362">    payloadMap.put(&quot;language&quot;, problem.language());</span>
+<span class="nc" id="L363">    payloadMap.put(&quot;version&quot;, problem.version());</span>
+
+    // make a fileList and get file name
+<span class="nc" id="L366">    List&lt;Map&lt;String, Object&gt;&gt; codeFile = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L367">    String fileName = &quot;devduel&quot; + this.helperCodeMap.get(&quot;extension&quot;).get(problem.language());</span>
+    // add code to run to file and append to api payload
+<span class="nc" id="L369">    codeFile.add(Map.of(&quot;content&quot;, problem.code(), &quot;name&quot;, fileName));</span>
+<span class="nc" id="L370">    payloadMap.put(&quot;files&quot;, codeFile);</span>
+<span class="nc" id="L371">    return JsonUtil.toMoshiJson(payloadMap);</span>
+  }
+
+  /**
+   * Check whether user code runs without any error. This checks whether the stderr field of the
+   * response's run free is empty.
+   *
+   * @param stderr
+   * @return
+   */
+  private boolean codeRunWithError(String stderr) {
+<span class="nc bnc" id="L382" title="All 4 branches missed.">    return stderr != null &amp;&amp; !stderr.isEmpty();</span>
+  }
+
+  /**
+   * Converts the string of standard input/output of executed code to list. The api response contain
+   * a json run field with an output field. This field contains the ordered list of console logs
+   * separated by newline character.
+   *
+   * @param apiOutputField run output field list
+   * @return
+   */
+  private Map&lt;String, List&lt;String&gt;&gt; toStdIOMap(String apiOutputField) {
+<span class="nc" id="L394">    List&lt;String&gt; outputList = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L395">    Map&lt;String, List&lt;String&gt;&gt; toReturn = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L396">    String stripped = apiOutputField.strip();</span>
+<span class="nc" id="L397">    String[] splittedStrings = stripped.split(&quot;\\r?\\n|\\r&quot;);</span>
+<span class="nc bnc" id="L398" title="All 2 branches missed.">    for (int i = 0; i &lt; splittedStrings.length; i++) {</span>
+      // Don't include our appended code to the output
+<span class="nc bnc" id="L400" title="All 2 branches missed.">      if (splittedStrings[i].contains(&quot;STORAGE=&quot;)) {</span>
+<span class="nc" id="L401">        toReturn.put(&quot;storage&quot;, List.of(splittedStrings[i]));</span>
+<span class="nc" id="L402">        break;</span>
+      }
+<span class="nc" id="L404">      outputList.add(splittedStrings[i]);</span>
+    }
+<span class="nc" id="L406">    toReturn.put(&quot;output&quot;, outputList);</span>
+<span class="nc" id="L407">    return toReturn;</span>
+  }
+
+  /**
+   * Converts the api run result string into tests and score format returned in response. The
+   * results of running test cases with api call is concatenated in a storage string and printed to
+   * stdout. This print result is obtained and reformatted in manner that is returned in the client.
+   *
+   * @param apiTestResultString concatenated return values from function calls
+   * @param key key associated with this problem test record in cache.
+   * @return a map of tests and scores or null for malformed string.
+   */
+  private Map&lt;String, Object&gt; getTestResults(
+      String apiTestResultString, String key, String language) throws Exception {
+<span class="nc" id="L421">    Map&lt;String, String&gt; cachedProblemInfo = this.cache.get(key);</span>
+<span class="nc" id="L422">    List&lt;TestRecord&gt; testRecordListForProblem =</span>
+<span class="nc" id="L423">        JsonUtil.toObjectList(cachedProblemInfo.get(&quot;test&quot;), TestRecord.class);</span>
+
+    // remove the &quot;STORAGE=&quot; string from result
+<span class="nc" id="L426">    String resultString = apiTestResultString.substring(8);</span>
+<span class="nc" id="L427">    String[] splittedResults = resultString.split(&quot;==SEP==&quot;);</span>
+<span class="nc" id="L428">    int len = splittedResults.length;</span>
+<span class="nc" id="L429">    int scores = 0;</span>
+<span class="nc bnc" id="L430" title="All 4 branches missed.">    if (testRecordListForProblem != null &amp;&amp; len != testRecordListForProblem.size()) {</span>
+<span class="nc" id="L431">      throw new Exception(&quot;Too much test cases than returned from running method calls&quot;);</span>
+    }
+
+<span class="nc" id="L434">    List&lt;TestRecord&gt; testRecordList =</span>
+<span class="nc" id="L435">        JsonUtil.toObjectList(cachedProblemInfo.get(&quot;test&quot;), TestRecord.class);</span>
+<span class="nc" id="L436">    boolean expectExact = Boolean.parseBoolean(cachedProblemInfo.get(&quot;expectExact&quot;).toLowerCase());</span>
+<span class="nc" id="L437">    String returnType = cachedProblemInfo.get(&quot;returnType&quot;);</span>
+<span class="nc" id="L438">    return getTestResultHelper(testRecordList, splittedResults, returnType, expectExact, language);</span>
+  }
+
+  /**
+   * Helper method called by getResults to compare expect test results with actual results.
+   *
+   * @param testRecords a list of test record contain inputs and expected values
+   * @param actualResults a list containing actual results returned by method calls
+   * @param returnType the string of the expected type of method call
+   * @param expectExact asserts whether returned value must exactly same as expected
+   * @return a map of score list of test results
+   */
+  private Map&lt;String, Object&gt; getTestResultHelper(
+      List&lt;TestRecord&gt; testRecords,
+      String[] actualResults,
+      String returnType,
+      boolean expectExact,
+      String language)
+      throws Exception {
+    // Special case for doubles if necessary...
+<span class="nc" id="L458">    int limit = testRecords.size();</span>
+<span class="nc" id="L459">    int score = 0;</span>
+<span class="nc" id="L460">    Type resolvedType = TypeResolverUtil.resolveType(returnType);</span>
+<span class="nc" id="L461">    List&lt;Map&lt;String, Object&gt;&gt; toReturn = new ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L462" title="All 2 branches missed.">    for (int i = 0; i &lt; limit; i++) {</span>
+<span class="nc" id="L463">      String expected = testRecords.get(i).expected();</span>
+<span class="nc" id="L464">      String actual = actualResults[i];</span>
+
+<span class="nc bnc" id="L466" title="All 2 branches missed.">      if (expectExact) {</span>
+<span class="nc bnc" id="L467" title="All 2 branches missed.">        if (!returnType.equalsIgnoreCase(&quot;STRING&quot;)) {</span>
+<span class="nc" id="L468">          expected = expected.replaceAll(&quot; &quot;, &quot;&quot;);</span>
+<span class="nc" id="L469">          actual = actual.replaceAll(&quot; &quot;, &quot;&quot;);</span>
+        }
+<span class="nc" id="L471">        System.out.println(actual);</span>
+
+<span class="nc bnc" id="L473" title="All 2 branches missed.">        actual = (returnType.equalsIgnoreCase(&quot;DOUBLE&quot;)) ? format(actual, 6).toString() : actual;</span>
+<span class="nc bnc" id="L474" title="All 2 branches missed.">        score += (expected.equals(actual)) ? 1 : 0;</span>
+      } else {
+<span class="nc bnc" id="L476" title="All 2 branches missed.">        if (TypeResolverUtil.isListType(resolvedType)) {</span>
+<span class="nc" id="L477">          expected = JsonUtil.toMoshiJson(JsonUtil.toObject(expected, resolvedType));</span>
+<span class="nc" id="L478">          actual = JsonUtil.toMoshiJson(JsonUtil.toObject(actual, resolvedType));</span>
+
+<span class="nc" id="L480">          List&lt;Object&gt; list1 = JsonUtil.toObject(expected, resolvedType);</span>
+<span class="nc" id="L481">          List&lt;Object&gt; list2 = JsonUtil.toObject(actual, resolvedType);</span>
+
+<span class="nc bnc" id="L483" title="All 4 branches missed.">          if (list1.size() == list2.size() &amp;&amp; Set.copyOf(list1).equals(Set.copyOf(list2))) {</span>
+<span class="nc" id="L484">            expected = actual;</span>
+<span class="nc" id="L485">            score++;</span>
+          }
+<span class="nc bnc" id="L487" title="All 2 branches missed.">        } else if (TypeResolverUtil.isSetType(resolvedType)) {</span>
+
+<span class="nc" id="L489">          String actualTemp = &quot;[&quot; + actual.substring(1, actual.length() - 1) + &quot;]&quot;;</span>
+<span class="nc" id="L490">          String expectedTemp = &quot;[&quot; + expected.substring(1, expected.length() - 1) + &quot;]&quot;;</span>
+<span class="nc" id="L491">          ParameterizedType pType = (ParameterizedType) resolvedType;</span>
+<span class="nc" id="L492">          Type type = Types.newParameterizedType(List.class, pType.getActualTypeArguments()[0]);</span>
+<span class="nc" id="L493">          List&lt;Object&gt; list1 = JsonUtil.toObject(expectedTemp, type);</span>
+<span class="nc" id="L494">          List&lt;Object&gt; list2 = JsonUtil.toObject(actualTemp, type);</span>
+
+<span class="nc" id="L496">          String actualReformatted = JsonUtil.toMoshiJson(list2);</span>
+<span class="nc" id="L497">          String expectedReformatted = JsonUtil.toMoshiJson(list1);</span>
+<span class="nc" id="L498">          actual = &quot;{&quot; + actualReformatted.substring(1, actualReformatted.length() - 1) + &quot;}&quot;;</span>
+<span class="nc" id="L499">          expected = &quot;{&quot; + expectedReformatted.substring(1, expectedReformatted.length() - 1) + &quot;}&quot;;</span>
+
+<span class="nc bnc" id="L501" title="All 2 branches missed.">          if (list1.size() == list2.size()) {</span>
+<span class="nc" id="L502">            expected = actual;</span>
+<span class="nc" id="L503">            score++;</span>
+          }
+<span class="nc" id="L505">        } else {</span>
+          actual =
+<span class="nc bnc" id="L507" title="All 2 branches missed.">              (language.equalsIgnoreCase(&quot;JAVA&quot;))</span>
+<span class="nc" id="L508">                  ? JsonUtil.convertToJson(actual)</span>
+<span class="nc" id="L509">                  : actual.replaceAll(&quot;'&quot;, &quot;\&quot;&quot;);</span>
+
+<span class="nc" id="L511">          Object obj1 = JsonUtil.toObject(expected, resolvedType);</span>
+<span class="nc" id="L512">          Object obj2 = JsonUtil.toObject(actual, resolvedType);</span>
+<span class="nc" id="L513">          expected = JsonUtil.toMoshiJson(obj1);</span>
+<span class="nc" id="L514">          actual = JsonUtil.toMoshiJson(obj2);</span>
+<span class="nc bnc" id="L515" title="All 2 branches missed.">          if (obj1.equals(obj2)) {</span>
+<span class="nc" id="L516">            score++;</span>
+          }
+        }
+      }
+<span class="nc" id="L520">      System.out.println(&quot;expected: &quot; + expected);</span>
+<span class="nc" id="L521">      System.out.println(&quot;actual: &quot; + actual);</span>
+<span class="nc" id="L522">      toReturn.add(Map.of(&quot;actual&quot;, actual, &quot;expected&quot;, expected));</span>
+    }
+<span class="nc" id="L524">    String finalScore = score + &quot;/&quot; + testRecords.size();</span>
+<span class="nc" id="L525">    return Map.of(&quot;score&quot;, finalScore, &quot;tests&quot;, toReturn);</span>
+  }
+
+  /**
+   * Rounds a String number to a specified decimal places
+   *
+   * @param value number to be rounded
+   * @param places number of decimal places to round number to
+   * @return value rounded to specified decimal places
+   */
+  public static String format(String value, int places) {
+<span class="nc bnc" id="L536" title="All 2 branches missed.">    if (places &lt; 0) throw new IllegalArgumentException(&quot;Decimal places must be non-negative.&quot;);</span>
+
+<span class="nc" id="L538">    double number = Double.parseDouble(value);</span>
+    // Check if the number is a whole number with trailing zeros
+<span class="nc bnc" id="L540" title="All 2 branches missed.">    if (number == Math.floor(number)) {</span>
+<span class="nc" id="L541">      return new DecimalFormat(&quot;#.0&quot;).format(number);</span>
+    }
+<span class="nc" id="L543">    StringBuilder pattern = new StringBuilder(&quot;#.&quot;);</span>
+<span class="nc bnc" id="L544" title="All 2 branches missed.">    for (int i = 0; i &lt; places; i++) {</span>
+<span class="nc" id="L545">      boolean flag = false;</span>
+<span class="nc" id="L546">      pattern.append(&quot;#&quot;);</span>
+    }
+
+<span class="nc" id="L549">    DecimalFormat df = new DecimalFormat(pattern.toString());</span>
+<span class="nc" id="L550">    df.setRoundingMode(RoundingMode.HALF_UP);</span>
+<span class="nc" id="L551">    return df.format(number);</span>
+  }
+}
+
+/**
+ * todo: Handle returns values that are sets separate the returns into a separate method to avoid
+ * repeated checking of type Try returns that are doubles Add tests for syntax errors for each
+ * programming language Add the authentication middleware. Address the cors problem as well in the
+ * option
+ */
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

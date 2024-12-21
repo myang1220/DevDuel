@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CacheStorage.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">s0</a> &gt; <a href="index.source.html" class="el_package">edu.brown.cs.student.storage</a> &gt; <span class="el_source">CacheStorage.java</span></div><h1>CacheStorage.java</h1><pre class="source lang-java linenums">package edu.brown.cs.student.storage;
+
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+// do we need this?
+public class CacheStorage&lt;V&gt; {
+  private final Cache&lt;String, V&gt; cache;
+
+  /**
+   * CacheStorage is wrapper class around Google's Guava cache api. This cache cache provides
+   * constructor for setting maximum cache size and also setting the minutes to evict item after
+   * acess. All methods in the class are simple wrappers around the corresponding guava api.
+   */
+<span class="nc" id="L17">  public CacheStorage(int maxSize, int evictAfterGetMin) {</span>
+<span class="nc" id="L18">    this.cache =</span>
+<span class="nc" id="L19">        CacheBuilder.newBuilder()</span>
+<span class="nc" id="L20">            .maximumSize(maxSize)</span>
+<span class="nc" id="L21">            .expireAfterAccess(evictAfterGetMin, TimeUnit.MINUTES)</span>
+<span class="nc" id="L22">            .build();</span>
+<span class="nc" id="L23">  }</span>
+
+  /**
+   * Wrapper around guava cache's getIfPresent
+   *
+   * @param key key of item to retrieve
+   * @return item associated with key or null if no item found.
+   */
+  public V get(String key) {
+<span class="nc" id="L32">    return this.cache.getIfPresent(key);</span>
+  }
+
+  /**
+   * Wrapper around guava cache's getIfPresent
+   *
+   * @param key
+   * @return
+   */
+  public void put(String key, V item) {
+<span class="nc" id="L42">    this.cache.put(key, item);</span>
+<span class="nc" id="L43">  }</span>
+
+  /**
+   * @return the items in cache as unmodifiable map
+   */
+  public Map&lt;String, V&gt; asMap() {
+<span class="nc" id="L49">    return this.cache.asMap();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

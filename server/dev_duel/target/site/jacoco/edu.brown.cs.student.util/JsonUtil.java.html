@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>JsonUtil.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">s0</a> &gt; <a href="index.source.html" class="el_package">edu.brown.cs.student.util</a> &gt; <span class="el_source">JsonUtil.java</span></div><h1>JsonUtil.java</h1><pre class="source lang-java linenums">package edu.brown.cs.student.util;
+
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+import com.squareup.moshi.Types;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.lang.reflect.Type;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+/** Utility class for common operations. */
+<span class="nc" id="L19">public class JsonUtil {</span>
+
+<span class="nc" id="L21">  private static final Moshi moshi = new Moshi.Builder().build();</span>
+<span class="nc" id="L22">  private static final JsonAdapter&lt;Object&gt; jsonAdapter = moshi.adapter(Object.class);</span>
+
+  /**
+   * Converts an object to a JSON string using Moshi.
+   *
+   * @param obj The object to convert.
+   * @return JSON representation of the object.
+   */
+  public static String toMoshiJson(Object obj) {
+    try {
+<span class="nc" id="L32">      return jsonAdapter.toJson(obj);</span>
+<span class="nc" id="L33">    } catch (Exception e) {</span>
+<span class="nc" id="L34">      e.printStackTrace();</span>
+<span class="nc" id="L35">      return &quot;{\&quot;response_type\&quot;:\&quot;failure\&quot;,\&quot;error\&quot;:\&quot;JSON conversion error.\&quot;}&quot;;</span>
+    }
+  }
+
+  /**
+   *&lt;p&gt;Converts json to a List of element instances.
+   * This method serves as a convenient method of filtering large queries for only required data.
+   * &lt;pre&gt;toList returns null by choice because it will mainly serve as an intermediate method call that
+   * will first convert api response to list of spefic record and back to json.
+   *
+   * @param json the json list being converted into java list
+   * @param of the object contained in the list
+   * @return a list containg instances of 'of' or null on exception or empty json
+   */
+  public static &lt;T&gt; List&lt;T&gt; toObjectList(String json, Type of) {
+<span class="nc" id="L50">    Type type = Types.newParameterizedType(List.class, of);</span>
+<span class="nc" id="L51">    JsonAdapter&lt;List&lt;T&gt;&gt; jsonAdapter = moshi.adapter(type);</span>
+    try {
+<span class="nc" id="L53">      return jsonAdapter.fromJson(json);</span>
+<span class="nc" id="L54">    } catch (Exception e) {</span>
+<span class="nc" id="L55">      e.printStackTrace();</span>
+<span class="nc" id="L56">      return null;</span>
+    }
+  }
+
+  /**
+   * Generates an error response map.
+   *
+   * @param message Error message.
+   * @return Map containing the error message.
+   */
+  public static Map&lt;String, Object&gt; generateErrorMap(String message) {
+<span class="nc" id="L67">    Map&lt;String, Object&gt; errorMap = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L68">    errorMap.put(&quot;response_type&quot;, &quot;failure&quot;);</span>
+<span class="nc" id="L69">    errorMap.put(&quot;error&quot;, message);</span>
+<span class="nc" id="L70">    return errorMap;</span>
+  }
+
+  /**
+   * Converts json into a map object.
+   *
+   * @param json json file to be converted.
+   * @return
+   */
+  public static Map&lt;String, Object&gt; toMap(String json) {
+<span class="nc" id="L80">    Type type = Types.newParameterizedType(Map.class, String.class, Object.class);</span>
+<span class="nc" id="L81">    JsonAdapter&lt;Map&lt;String, Object&gt;&gt; adapter = moshi.adapter(type);</span>
+    try {
+<span class="nc" id="L83">      return adapter.fromJson(json);</span>
+<span class="nc" id="L84">    } catch (Exception e) {</span>
+<span class="nc" id="L85">      e.printStackTrace();</span>
+<span class="nc" id="L86">      return null;</span>
+    }
+  }
+
+  /**
+   * Converts json into a map object.
+   *
+   * @param json json file to be converted.
+   * @return
+   */
+  public static Map&lt;String, String&gt; toStrMap(String json) {
+<span class="nc" id="L97">    Type type = Types.newParameterizedType(Map.class, String.class, String.class);</span>
+<span class="nc" id="L98">    JsonAdapter&lt;Map&lt;String, String&gt;&gt; adapter = moshi.adapter(type);</span>
+    try {
+<span class="nc" id="L100">      return adapter.fromJson(json);</span>
+<span class="nc" id="L101">    } catch (Exception e) {</span>
+<span class="nc" id="L102">      e.printStackTrace();</span>
+<span class="nc" id="L103">      return null;</span>
+    }
+  }
+
+  /**
+   * Read json files to map object
+   *
+   * @param &lt;T&gt;
+   * @param json
+   * @param type
+   * @return
+   */
+  public static Map&lt;String, Map&lt;String, String&gt;&gt; readJsonToMap(String filepath) {
+    // todo: handle error with missing file later...
+<span class="nc" id="L117">    Type type =</span>
+<span class="nc" id="L118">        Types.newParameterizedType(</span>
+            Map.class,
+            String.class,
+<span class="nc" id="L121">            Types.newParameterizedType(Map.class, String.class, String.class));</span>
+<span class="nc" id="L122">    JsonAdapter&lt;Map&lt;String, Map&lt;String, String&gt;&gt;&gt; adapter = moshi.adapter(type);</span>
+<span class="nc" id="L123">    try (InputStream is = new FileInputStream(filepath)) {</span>
+<span class="nc" id="L124">      String fileStream = new String(is.readAllBytes());</span>
+<span class="nc" id="L125">      return adapter.fromJson(fileStream);</span>
+
+<span class="nc" id="L127">    } catch (Exception e) {</span>
+<span class="nc" id="L128">      e.printStackTrace();</span>
+    }
+<span class="nc" id="L130">    return null; // will throw error later to detect any failure</span>
+  }
+
+  /**
+   * Converts a json file into an instance of type object
+   *
+   * @param &lt;T&gt; generic type of object
+   * @param json the json to convert
+   * @param type object to be converted to
+   * @return return a java object
+   * @throws Exception
+   */
+  public static &lt;T&gt; T toObject(String json, Type type) throws IOException {
+<span class="nc" id="L143">    JsonAdapter&lt;T&gt; adapter = moshi.adapter(type);</span>
+<span class="nc" id="L144">    return adapter.fromJson(json);</span>
+  }
+
+  /**
+   * Create a receipt time map for the request.
+   *
+   * @param url url of the request.
+   * @return
+   */
+  public static Map&lt;String, String&gt; requestInfoMap(String url) {
+
+    // Get the current local date and time
+<span class="nc" id="L156">    LocalDateTime currentDateTime = LocalDateTime.now();</span>
+    // Format the date and time
+<span class="nc" id="L158">    DateTimeFormatter formatter = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd HH:mm:ss&quot;);</span>
+<span class="nc" id="L159">    String formattedDateTime = currentDateTime.format(formatter);</span>
+<span class="nc" id="L160">    return Map.of(&quot;url&quot;, url, &quot;timestamp&quot;, formattedDateTime);</span>
+  }
+
+  /**
+   * Converts a java map string representation into json format
+   *
+   * @param input string format to be converted into json
+   * @return a json format of java string representation of map
+   */
+  public static String convertToJson(String input) {
+    // Remove the curly braces
+<span class="nc" id="L171">    input = input.substring(1, input.length() - 1);</span>
+
+    // Replace key=value with &quot;key&quot;: &quot;value&quot;
+<span class="nc" id="L174">    Pattern pattern = Pattern.compile(&quot;([^,=]+)=([^,]*)&quot;);</span>
+<span class="nc" id="L175">    Matcher matcher = pattern.matcher(input);</span>
+<span class="nc" id="L176">    StringBuffer result = new StringBuffer(&quot;{&quot;);</span>
+
+<span class="nc bnc" id="L178" title="All 2 branches missed.">    while (matcher.find()) {</span>
+<span class="nc" id="L179">      matcher.appendReplacement(</span>
+<span class="nc" id="L180">          result, &quot;\&quot;&quot; + matcher.group(1).trim() + &quot;\&quot;:\&quot;&quot; + matcher.group(2).trim() + &quot;\&quot;&quot;);</span>
+    }
+
+<span class="nc" id="L183">    result.append(&quot;}&quot;);</span>
+<span class="nc" id="L184">    return result.toString();</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

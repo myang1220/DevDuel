@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthMiddleware.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">s0</a> &gt; <a href="index.source.html" class="el_package">edu.brown.cs.student.util</a> &gt; <span class="el_source">AuthMiddleware.java</span></div><h1>AuthMiddleware.java</h1><pre class="source lang-java linenums">package edu.brown.cs.student.util;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
+import spark.Spark;
+
+<span class="nc" id="L10">public class AuthMiddleware {</span>
+  private static final String CLERK_SECRET_KEY = &quot;&quot;;
+  private static final String CLERK_API_URL = &quot;https://api.clerk.dev/v1/tokens/verify&quot;;
+
+  public static void apply() {
+<span class="nc" id="L15">    Spark.options(</span>
+        &quot;/*&quot;,
+        (request, response) -&gt; {
+<span class="nc" id="L18">          String accessControlRequestHeaders = request.headers(&quot;Access-Control-Request-Headers&quot;);</span>
+<span class="nc" id="L19">          String accessControlRequestMethod = request.headers(&quot;Access-Control-Request-Method&quot;);</span>
+
+<span class="nc bnc" id="L21" title="All 2 branches missed.">          if (accessControlRequestHeaders != null) {</span>
+<span class="nc" id="L22">            response.header(&quot;Access-Control-Allow-Headers&quot;, accessControlRequestHeaders);</span>
+          }
+<span class="nc bnc" id="L24" title="All 2 branches missed.">          if (accessControlRequestMethod != null) {</span>
+<span class="nc" id="L25">            response.header(&quot;Access-Control-Allow-Methods&quot;, accessControlRequestMethod);</span>
+          }
+          // Allow all origins or specific origin
+<span class="nc" id="L28">          response.type(&quot;application/json&quot;);</span>
+<span class="nc" id="L29">          response.status(200);</span>
+<span class="nc" id="L30">          return &quot;OK&quot;;</span>
+        });
+    // todo: implement the before later
+
+    //    Spark.before(
+    //        (request, response) -&gt; {
+    //          if (request.requestMethod().equalsIgnoreCase(&quot;OPTIONS&quot;)) {
+    //            return;
+    //          }
+    //          String authHeader = request.headers(&quot;Authorization&quot;);
+    //
+    //          if (authHeader == null || !authHeader.startsWith(&quot;Bearer &quot;)) {
+    //            Spark.halt(
+    //                401,
+    //                JsonUtil.toMoshiJson(JsonUtil.generateErrorMap(&quot;Unauthorized: No token
+    // provided&quot;)));
+    //          }
+    //          String token = authHeader.substring(7);
+    //
+    //          try {
+    //            boolean isValid = verifyToken(token);
+    //            System.out.println(&quot;valid token? &quot; + isValid);
+    //            if (!isValid) {
+    //              Spark.halt(
+    //                  401,
+    //                  JsonUtil.toMoshiJson(JsonUtil.generateErrorMap(&quot;Unauthorized: Invalid
+    // token&quot;)));
+    //            }
+    //          } catch (Exception e) {
+    //            e.printStackTrace();
+    //            Spark.halt(
+    //                500,
+    //                JsonUtil.toMoshiJson(
+    //                    JsonUtil.generateErrorMap(&quot;Internal Server Error: Token verification
+    // failed&quot;)));
+    //          }
+    //        });
+<span class="nc" id="L67">  }</span>
+
+  /**
+   * Verifies the token with Clerk's API.
+   *
+   * @param token Clerk-issued token.
+   * @return True if the token is valid, false otherwise.
+   * @throws IOException If an I/O error occurs.
+   */
+  private static boolean verifyToken(String token) throws IOException {
+<span class="nc" id="L77">    java.net.URL url = new java.net.URL(CLERK_API_URL);</span>
+<span class="nc" id="L78">    java.net.HttpURLConnection conn = (java.net.HttpURLConnection) url.openConnection();</span>
+<span class="nc" id="L79">    conn.setRequestMethod(&quot;POST&quot;);</span>
+<span class="nc" id="L80">    conn.setRequestProperty(&quot;Content-Type&quot;, &quot;application/json&quot;);</span>
+<span class="nc" id="L81">    System.out.println(CLERK_SECRET_KEY);</span>
+<span class="nc" id="L82">    conn.setRequestProperty(&quot;Authorization&quot;, &quot;Bearer &quot; + CLERK_SECRET_KEY);</span>
+<span class="nc" id="L83">    conn.setDoOutput(true);</span>
+
+<span class="nc" id="L85">    Map&lt;String, String&gt; payload = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L86">    payload.put(&quot;token&quot;, token);</span>
+<span class="nc" id="L87">    String jsonPayload = JsonUtil.toMoshiJson(payload);</span>
+
+<span class="nc" id="L89">    try (java.io.OutputStream os = conn.getOutputStream()) {</span>
+<span class="nc" id="L90">      byte[] input = jsonPayload.getBytes(StandardCharsets.UTF_8);</span>
+<span class="nc" id="L91">      os.write(input, 0, input.length);</span>
+    }
+
+<span class="nc" id="L94">    int status = conn.getResponseCode();</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">    if (status != 200) {</span>
+<span class="nc" id="L96">      return false;</span>
+    }
+
+<span class="nc" id="L99">    try (InputStream is = conn.getInputStream()) {</span>
+<span class="nc" id="L100">      String responseBody = new String(is.readAllBytes(), StandardCharsets.UTF_8);</span>
+<span class="nc" id="L101">      Map&lt;String, Object&gt; responseMap = JsonUtil.toMap(responseBody);</span>
+<span class="nc" id="L102">      return true; // todo: implement this later</span>
+    }
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

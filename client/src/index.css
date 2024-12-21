@@ -1,0 +1,60 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background-color: #052e16; /* Match the loading screen background (e.g., dark green or black) */
+  color: white; /* Optional: Set text color to match the app theme */
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+.text-shadow {
+  text-shadow: 7px 7px 10px rgb(0, 0, 0);
+}
+
+.text-glow {
+  background: linear-gradient(90deg, #ffffff, #f3f4f6);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow:
+    0 0 4px #9ca3af,
+    0 2px 6px #6b7280;
+  letter-spacing: 1.5px;
+}
+
+.text-shadow-glow {
+  text-shadow:
+    7px 7px 10px rgb(0, 0, 0),
+    /* Black shadow */ 0 0 5px #f3f4f6,
+    /* Soft glow */ 0 0 10px #f3f4f6; /* Slightly larger glow for depth */
+}
+
+.editor-wrapper .monaco-editor,
+.editor-wrapper .overflow-guard {
+  border-radius: 8px;
+}
+
+/* Customize the scrollbar */
+.scrollable-content::-webkit-scrollbar {
+  width: 4px; /* Set the width of the scrollbar */
+}
+
+.scrollable-content::-webkit-scrollbar-thumb {
+  background: #838383; /* Coral or any bright color */
+  border-radius: 4px; /* Round the edges */
+}
+
+.waitingroom-scrollbar::-webkit-scrollbar {
+  width: 4px; /* Scrollbar width */
+}
+
+.waitingroom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgb(131, 131, 131); /* Thumb color */
+  border-radius: 4px; /* Rounded edges */
+}

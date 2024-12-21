@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MockUser.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">s0</a> &gt; <a href="index.source.html" class="el_package">edu.brown.cs.student.storage</a> &gt; <span class="el_source">MockUser.java</span></div><h1>MockUser.java</h1><pre class="source lang-java linenums">package edu.brown.cs.student.storage;
+
+import java.util.HashMap;
+import java.util.Map;
+
+<span class="nc" id="L6">public class MockUser {</span>
+
+  public String userID;
+  public String displayName;
+  public String email;
+  public String startDate;
+  public Double wins;
+  public Map&lt;String, ProblemInfo&gt; code; // map from string (problemID) to its info
+
+  // Nested class to represent user info
+<span class="nc" id="L16">  public static class ProblemInfo {</span>
+    public String code;
+    public String date;
+    public String score;
+
+    // Method to update user info fields from a map
+    public void updateFields(Map&lt;String, Object&gt; updates) {
+<span class="nc bnc" id="L23" title="All 2 branches missed.">      if (updates.containsKey(&quot;code&quot;)) {</span>
+<span class="nc" id="L24">        this.code = (String) updates.get(&quot;code&quot;);</span>
+      }
+<span class="nc bnc" id="L26" title="All 2 branches missed.">      if (updates.containsKey(&quot;date&quot;)) {</span>
+<span class="nc" id="L27">        this.date = (String) updates.get(&quot;date&quot;);</span>
+      }
+<span class="nc bnc" id="L29" title="All 2 branches missed.">      if (updates.containsKey(&quot;score&quot;)) {</span>
+<span class="nc" id="L30">        this.score = (String) updates.get(&quot;score&quot;);</span>
+      }
+<span class="nc" id="L32">    }</span>
+
+    @Override
+    public String toString() {
+<span class="nc" id="L36">      return &quot;code{&quot;</span>
+          + &quot;code='&quot;
+          + code
+          + '\''
+          + &quot;, date='&quot;
+          + date
+          + '\''
+          + &quot;, score='&quot;
+          + score
+          + '\''
+          + '}';
+    }
+  }
+
+  // Method to update room fields from a map
+  public void updateFields(Map&lt;String, Object&gt; updates) {
+<span class="nc bnc" id="L52" title="All 2 branches missed.">    if (updates.containsKey(&quot;userID&quot;)) {</span>
+<span class="nc" id="L53">      this.userID = (String) updates.get(&quot;userID&quot;);</span>
+    }
+<span class="nc bnc" id="L55" title="All 2 branches missed.">    if (updates.containsKey(&quot;displayName&quot;)) {</span>
+<span class="nc" id="L56">      this.displayName = (String) updates.get(&quot;displayName&quot;);</span>
+    }
+<span class="nc bnc" id="L58" title="All 2 branches missed.">    if (updates.containsKey(&quot;email&quot;)) {</span>
+<span class="nc" id="L59">      this.email = (String) updates.get(&quot;email&quot;);</span>
+    }
+<span class="nc bnc" id="L61" title="All 2 branches missed.">    if (updates.containsKey(&quot;startDate&quot;)) {</span>
+<span class="nc" id="L62">      this.startDate = (String) updates.get(&quot;startDate&quot;);</span>
+    }
+<span class="nc bnc" id="L64" title="All 2 branches missed.">    if (updates.containsKey(&quot;wins&quot;)) {</span>
+<span class="nc" id="L65">      this.wins = Double.parseDouble(updates.get(&quot;wins&quot;).toString());</span>
+    }
+<span class="nc bnc" id="L67" title="All 2 branches missed.">    if (updates.containsKey(&quot;code&quot;)) {</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">      if (this.code == null) {</span>
+<span class="nc" id="L69">        this.code = new HashMap&lt;&gt;();</span>
+      }
+<span class="nc" id="L71">      Map&lt;String, Map&lt;String, Object&gt;&gt; codeUpdates =</span>
+<span class="nc" id="L72">          (Map&lt;String, Map&lt;String, Object&gt;&gt;) updates.get(&quot;code&quot;);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">      for (Map.Entry&lt;String, Map&lt;String, Object&gt;&gt; entry : codeUpdates.entrySet()) {</span>
+<span class="nc" id="L74">        String problemID = entry.getKey();</span>
+<span class="nc" id="L75">        Map&lt;String, Object&gt; codeUpdate = entry.getValue();</span>
+<span class="nc" id="L76">        ProblemInfo currProbInfo = this.code.get(problemID);</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        if (currProbInfo == null) {</span>
+<span class="nc" id="L78">          currProbInfo = new ProblemInfo();</span>
+<span class="nc" id="L79">          this.code.put(problemID, currProbInfo);</span>
+        }
+<span class="nc" id="L81">        currProbInfo.updateFields(codeUpdate);</span>
+<span class="nc" id="L82">      }</span>
+    }
+<span class="nc" id="L84">  }</span>
+
+  @Override
+  public String toString() {
+<span class="nc" id="L88">    return &quot;MockRoom{&quot;</span>
+        + &quot;userID='&quot;
+        + userID
+        + '\''
+        + &quot;, displayName='&quot;
+        + displayName
+        + '\''
+        + &quot;, email='&quot;
+        + email
+        + '\''
+        + &quot;, startDate='&quot;
+        + startDate
+        + '\''
+        + &quot;, wins='&quot;
+        + wins
+        + '\''
+        + '}';
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

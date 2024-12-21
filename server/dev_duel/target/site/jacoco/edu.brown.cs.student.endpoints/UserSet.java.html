@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserSet.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">s0</a> &gt; <a href="index.source.html" class="el_package">edu.brown.cs.student.endpoints</a> &gt; <span class="el_source">UserSet.java</span></div><h1>UserSet.java</h1><pre class="source lang-java linenums">package edu.brown.cs.student.endpoints;
+
+import edu.brown.cs.student.storage.IStorage;
+import edu.brown.cs.student.util.JsonUtil;
+import java.util.HashMap;
+import java.util.Map;
+import spark.Request;
+import spark.Response;
+import spark.Route;
+
+// this class sets the data for a user
+public class UserSet implements Route {
+
+  private IStorage storageManager;
+
+<span class="nc" id="L16">  public UserSet(IStorage storage) {</span>
+<span class="nc" id="L17">    this.storageManager = storage;</span>
+<span class="nc" id="L18">  }</span>
+
+  @Override
+  public Object handle(Request request, Response response) throws Exception {
+<span class="nc" id="L22">    Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</span>
+
+    // collect params
+<span class="nc" id="L25">    String displayName = request.queryParams(&quot;displayName&quot;);</span>
+<span class="nc" id="L26">    String userID = request.queryParams(&quot;userID&quot;);</span>
+<span class="nc" id="L27">    String email = request.queryParams(&quot;email&quot;);</span>
+<span class="nc" id="L28">    String wins = request.queryParams(&quot;wins&quot;);</span>
+<span class="nc" id="L29">    String startDate = request.queryParams(&quot;date&quot;);</span>
+
+    try {
+      // makes sure no params are null
+<span class="nc bnc" id="L33" title="All 10 branches missed.">      if (displayName == null</span>
+          || userID == null
+          || email == null
+          || wins == null
+          || startDate == null) {
+<span class="nc" id="L38">        throw new IllegalArgumentException(&quot;One or more required parameters are missing or null.&quot;);</span>
+      }
+
+      double winDouble;
+<span class="nc" id="L42">      winDouble = Double.parseDouble(wins);</span>
+
+      // puts the input data into a map which will be sent to firestore
+<span class="nc" id="L45">      HashMap&lt;String, Object&gt; data = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L46">      data.put(&quot;displayName&quot;, displayName);</span>
+<span class="nc" id="L47">      data.put(&quot;userID&quot;, userID);</span>
+<span class="nc" id="L48">      data.put(&quot;email&quot;, email);</span>
+<span class="nc" id="L49">      data.put(&quot;wins&quot;, winDouble);</span>
+<span class="nc" id="L50">      data.put(&quot;startDate&quot;, startDate);</span>
+
+<span class="nc" id="L52">      Map&lt;String, Object&gt; currentData = this.storageManager.getDocument(&quot;Users&quot;, userID);</span>
+<span class="nc bnc" id="L53" title="All 4 branches missed.">      if (currentData != null &amp;&amp; currentData.containsKey(&quot;code&quot;)) {</span>
+<span class="nc" id="L54">        data.put(&quot;code&quot;, currentData.get(&quot;code&quot;));</span>
+      }
+
+      // puts the data in a document under collection Users and with name User+userID
+<span class="nc" id="L58">      this.storageManager.addDocument(&quot;Users&quot;, userID, data);</span>
+
+      // returns success and displays the data inputted to make sure
+<span class="nc" id="L61">      responseMap.put(&quot;response_type&quot;, &quot;success&quot;);</span>
+<span class="nc" id="L62">      responseMap.put(&quot;data&quot;, data);</span>
+<span class="nc" id="L63">    } catch (IllegalArgumentException e) {</span>
+      // returns failure if something went wrong
+<span class="nc" id="L65">      responseMap.put(&quot;response_type&quot;, &quot;failure&quot;);</span>
+<span class="nc" id="L66">      responseMap.put(&quot;error&quot;, e.toString());</span>
+<span class="nc" id="L67">      e.printStackTrace();</span>
+<span class="nc" id="L68">    }</span>
+<span class="nc" id="L69">    return JsonUtil.toMoshiJson(responseMap);</span>
+  }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

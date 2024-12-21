@@ -1,0 +1,47 @@
+#!/bin/sh
+
+# Exit immediately if any command exits with a non-zero status.
+set -e
+
+# To run our code, we must have it in our classpath.
+# We use $(find target -name '*.jar') instead of target/stars-1.0.jar so that
+# this script can be reused in other projects more easily.
+echo "Current working directory: $(pwd)"
+TARGET=$(find target -name '*.jar' 2>/dev/null)
+if [ -z "$TARGET" ]; then
+    echo "No JAR file found in target/. Try running 'mvn package'."
+    exit 1
+fi
+
+# In the pom.xml, we've already explained what other libraries we
+# depend on. Maven downloaded them and put them in our local repository.
+# Now, we ask Maven to build the CLASSPATH that lets us run against those libraries.
+
+# First, we update the CLASSPATH if pom.xml is newer than .mvn-classpath.
+if [ ! -e .mvn-classpath ] || [ pom.xml -nt .mvn-classpath ]; then
+    mvn dependency:build-classpath -Dmdep.outputFile=.mvn-classpath -q
+fi
+
+# Now, set $CP to the contents of the .mvn-classpath file.
+CP=$(cat .mvn-classpath)
+
+# Attempt to find Server.java in the recommended package structure.
+MAIN=$(find src/main/java/edu/brown/cs/student -name 'Server.java' 2>/dev/null)
+if [ -z "$MAIN" ]; then
+    echo "You need a Server.java file in the appropriate package."
+    exit 1
+fi
+if [ "$(echo "$MAIN" | wc -l)" -ne 1 ]; then
+    echo "Multiple Server.java files found. Only one is allowed."
+    exit 1
+fi
+
+# Detect the appropriate path separator for the platform.
+PATHSEP=":"
+if [ "$OSTYPE" = 'cygwin' ] || [ "$OSTYPE" = 'msys' ] || [ "$OSTYPE" = 'win32' ]; then
+    PATHSEP=";"
+fi
+
+# Run the Java program with the specified classpath and arguments.
+# NOTE: Ensure your Server class is correctly packaged as edu.brown.cs.student.Server.
+java -ea -cp "$TARGET$PATHSEP$CP" edu.brown.cs.student.Server "$@"
