@@ -20,7 +20,10 @@ dist-ssr
 *.suo
 *.ntvs*
 *.njsproj
-*.sln
+*.slngit status
+
 *.sw?
 
 resources
+firebase.ts
+./src/firebase.ts
