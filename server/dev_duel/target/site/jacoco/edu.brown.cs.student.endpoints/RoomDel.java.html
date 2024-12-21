@@ -33,8 +33,8 @@ public class RoomDel implements Route {
 <span class="nc" id="L33">      Map&lt;String, Object&gt; data = this.storageManager.getDocument(&quot;Rooms&quot;, roomID);</span>
 <span class="nc bnc" id="L34" title="All 2 branches missed.">      if (data == null) { // check to make sure the room exists</span>
 <span class="nc" id="L35">        throw new IllegalArgumentException(</span>
-            &quot;User document for [roomID: &quot;
-                + roomID
+<span class="nc" id="L36">            &quot;User document for [roomID: &quot;</span>
+<span class="nc" id="L37">                + roomID</span>
                 + &quot;] not found. Check spelling or if the room exists&quot;);
       }
 <span class="nc" id="L40">      this.storageManager.deleteDocument(&quot;Rooms&quot;, roomID); // delete the document</span>
@@ -44,7 +44,7 @@ public class RoomDel implements Route {
 <span class="nc" id="L44">      responseMap.put(&quot;response_type&quot;, &quot;failure&quot;);</span>
 <span class="nc" id="L45">      responseMap.put(&quot;error&quot;, e.toString());</span>
 <span class="nc" id="L46">      e.printStackTrace();</span>
-<span class="nc" id="L47">    }</span>
+    }
 <span class="nc" id="L48">    return JsonUtil.toMoshiJson(responseMap);</span>
   }
 }

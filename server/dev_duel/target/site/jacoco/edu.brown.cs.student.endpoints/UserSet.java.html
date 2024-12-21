@@ -30,11 +30,11 @@ public class UserSet implements Route {
 
     try {
       // makes sure no params are null
-<span class="nc bnc" id="L33" title="All 10 branches missed.">      if (displayName == null</span>
-          || userID == null
-          || email == null
-          || wins == null
-          || startDate == null) {
+<span class="nc bnc" id="L33" title="All 2 branches missed.">      if (displayName == null</span>
+<span class="nc bnc" id="L34" title="All 2 branches missed.">          || userID == null</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">          || email == null</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">          || wins == null</span>
+<span class="nc bnc" id="L37" title="All 2 branches missed.">          || startDate == null) {</span>
 <span class="nc" id="L38">        throw new IllegalArgumentException(&quot;One or more required parameters are missing or null.&quot;);</span>
       }
 
@@ -65,7 +65,7 @@ public class UserSet implements Route {
 <span class="nc" id="L65">      responseMap.put(&quot;response_type&quot;, &quot;failure&quot;);</span>
 <span class="nc" id="L66">      responseMap.put(&quot;error&quot;, e.toString());</span>
 <span class="nc" id="L67">      e.printStackTrace();</span>
-<span class="nc" id="L68">    }</span>
+    }
 <span class="nc" id="L69">    return JsonUtil.toMoshiJson(responseMap);</span>
   }
 }

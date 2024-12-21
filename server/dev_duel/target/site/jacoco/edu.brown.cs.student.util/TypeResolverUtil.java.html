@@ -36,8 +36,8 @@ import java.util.Set;
 <span class="nc" id="L36">          put(&quot;Short&quot;, &quot;java.lang.Short&quot;);</span>
 <span class="nc" id="L37">          put(&quot;Byte&quot;, &quot;java.lang.Byte&quot;);</span>
 <span class="nc" id="L38">          put(&quot;Character&quot;, &quot;java.lang.Character&quot;);</span>
-<span class="nc" id="L39">        }</span>
-      };
+        }
+<span class="nc" id="L40">      };</span>
 
   /**
    * Resolves a type from its string representation using simple or full class names.
@@ -144,7 +144,7 @@ import java.util.Set;
 <span class="nc" id="L144">          typeArguments.add(resolveType(currentArg.toString()));</span>
 <span class="nc" id="L145">          currentArg = new StringBuilder();</span>
         }
-      } else {
+<span class="nc" id="L147">      } else {</span>
 <span class="nc" id="L148">        currentArg.append(c);</span>
       }
     }

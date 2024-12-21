@@ -68,7 +68,7 @@ public class PistonCodeEngineApi implements ICodeEngineApi {
 <span class="nc" id="L68">      e.printStackTrace();</span>
 <span class="nc" id="L69">    } catch (IOException e) {</span>
 <span class="nc" id="L70">      System.out.println(e.getMessage()); // update this to return a server error object</span>
-<span class="nc" id="L71">    }</span>
+    }
 <span class="nc" id="L72">    return null;</span>
   }
 
@@ -92,7 +92,7 @@ public class PistonCodeEngineApi implements ICodeEngineApi {
 <span class="nc bnc" id="L92" title="All 2 branches missed.">      if (requiredRuntimes.contains(runtime.language())) {</span>
 <span class="nc" id="L93">        outputList.add(runtime);</span>
       }
-<span class="nc" id="L95">    }</span>
+    }
 
 <span class="nc" id="L97">    Map&lt;String, Object&gt; clientResponse = new LinkedHashMap&lt;&gt;();</span>
 <span class="nc" id="L98">    clientResponse.put(&quot;response_type&quot;, &quot;success&quot;);</span>
@@ -114,7 +114,7 @@ public class PistonCodeEngineApi implements ICodeEngineApi {
 <span class="nc bnc" id="L114" title="All 2 branches missed.">      if (testsRecordList == null) {</span>
 <span class="nc" id="L115">        System.out.println(&quot;__TESTS_NOT_FOUND_CACHE_ERR__: code engine timeout&quot;);</span>
 <span class="nc" id="L116">        return JsonUtil.generateErrorMap(</span>
-            &quot;Code engine timeout: Make sure you aren't running your own code...&quot;);
+<span class="nc" id="L117">            &quot;Code engine timeout: Make sure you aren't running your own code...&quot;);</span>
       }
 <span class="nc" id="L119">      Map&lt;String, Object&gt; responseMap = new HashMap&lt;&gt;();</span>
 
@@ -203,7 +203,7 @@ public class PistonCodeEngineApi implements ICodeEngineApi {
 <span class="nc" id="L203">          System.out.println(&quot;Rate limit exceeded. Retrying after &quot; + backoff + &quot; milliseconds.&quot;);</span>
 <span class="nc" id="L204">          Thread.sleep(backoff);</span>
 <span class="nc" id="L205">          backoff *= 2; // Exponential backoff</span>
-        } else {
+<span class="nc" id="L206">        } else {</span>
 <span class="nc" id="L207">          System.out.println(&quot;Error: &quot; + responseCode);</span>
 <span class="nc" id="L208">          break;</span>
         }
@@ -211,7 +211,7 @@ public class PistonCodeEngineApi implements ICodeEngineApi {
 
 <span class="nc" id="L212">    } catch (Exception e) {</span>
 <span class="nc" id="L213">      e.printStackTrace();</span>
-<span class="nc" id="L214">    }</span>
+    }
 <span class="nc" id="L215">    return new ApiResponseRecord(&quot;code engine error.&quot;, null);</span>
   }
 
@@ -263,7 +263,7 @@ public class PistonCodeEngineApi implements ICodeEngineApi {
 <span class="nc" id="L263">      String toAppend = appendString.replace(&quot;&lt;VAL&gt;&quot;, functionCall);</span>
 <span class="nc" id="L264">      testCode.append(toAppend).append(&quot;\n&quot;);</span>
 <span class="nc" id="L265">      expectedValues.append(test.expected()).append(&quot;\n&quot;);</span>
-<span class="nc" id="L266">    }</span>
+    }
     // Print out the STORED TEST results;
 <span class="nc" id="L268">    testCode.append(this.helperCodeMap.get(&quot;printString&quot;).get(language)).append(&quot;\n&quot;);</span>
 <span class="nc" id="L269">    return List.of(testCode.toString(), expectedValues.toString());</span>
@@ -472,7 +472,7 @@ public class PistonCodeEngineApi implements ICodeEngineApi {
 
 <span class="nc bnc" id="L473" title="All 2 branches missed.">        actual = (returnType.equalsIgnoreCase(&quot;DOUBLE&quot;)) ? format(actual, 6).toString() : actual;</span>
 <span class="nc bnc" id="L474" title="All 2 branches missed.">        score += (expected.equals(actual)) ? 1 : 0;</span>
-      } else {
+<span class="nc" id="L475">      } else {</span>
 <span class="nc bnc" id="L476" title="All 2 branches missed.">        if (TypeResolverUtil.isListType(resolvedType)) {</span>
 <span class="nc" id="L477">          expected = JsonUtil.toMoshiJson(JsonUtil.toObject(expected, resolvedType));</span>
 <span class="nc" id="L478">          actual = JsonUtil.toMoshiJson(JsonUtil.toObject(actual, resolvedType));</span>
@@ -503,7 +503,7 @@ public class PistonCodeEngineApi implements ICodeEngineApi {
 <span class="nc" id="L503">            score++;</span>
           }
 <span class="nc" id="L505">        } else {</span>
-          actual =
+<span class="nc" id="L506">          actual =</span>
 <span class="nc bnc" id="L507" title="All 2 branches missed.">              (language.equalsIgnoreCase(&quot;JAVA&quot;))</span>
 <span class="nc" id="L508">                  ? JsonUtil.convertToJson(actual)</span>
 <span class="nc" id="L509">                  : actual.replaceAll(&quot;'&quot;, &quot;\&quot;&quot;);</span>

@@ -47,11 +47,11 @@ public class RoomSet implements Route {
       }
 <span class="nc" id="L48">      Map&lt;String, Object&gt; data = new HashMap&lt;&gt;();</span>
 <span class="nc" id="L49">      data.put(&quot;roomID&quot;, roomID);</span>
-<span class="nc bnc" id="L50" title="All 10 branches missed.">      if (roomName != null</span>
-          &amp;&amp; difficulty != null
-          &amp;&amp; timeCreated != null
-          &amp;&amp; problemID != null
-          &amp;&amp; duration != null) {
+<span class="nc bnc" id="L50" title="All 2 branches missed.">      if (roomName != null</span>
+<span class="nc bnc" id="L51" title="All 2 branches missed.">          &amp;&amp; difficulty != null</span>
+<span class="nc bnc" id="L52" title="All 2 branches missed.">          &amp;&amp; timeCreated != null</span>
+<span class="nc bnc" id="L53" title="All 2 branches missed.">          &amp;&amp; problemID != null</span>
+<span class="nc bnc" id="L54" title="All 2 branches missed.">          &amp;&amp; duration != null) {</span>
 <span class="nc" id="L55">        data.put(&quot;roomName&quot;, roomName);</span>
 <span class="nc" id="L56">        data.put(&quot;difficulty&quot;, difficulty);</span>
 <span class="nc" id="L57">        data.put(&quot;timeCreated&quot;, timeCreated);</span>
@@ -77,7 +77,7 @@ public class RoomSet implements Route {
 <span class="nc" id="L77">      responseMap.put(&quot;response_type&quot;, &quot;failure&quot;);</span>
 <span class="nc" id="L78">      responseMap.put(&quot;error&quot;, e.toString());</span>
 <span class="nc" id="L79">      e.printStackTrace();</span>
-<span class="nc" id="L80">    }</span>
+    }
 <span class="nc" id="L81">    return JsonUtil.toMoshiJson(responseMap);</span>
   }
 }

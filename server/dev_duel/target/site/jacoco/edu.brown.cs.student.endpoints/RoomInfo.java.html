@@ -35,8 +35,8 @@ public class RoomInfo implements Route {
 <span class="nc bnc" id="L35" title="All 2 branches missed.">      if (data == null) { // check to make sure something was retrieved. getDocument for firestore</span>
         // returns null if nothing
 <span class="nc" id="L37">        throw new IllegalArgumentException(</span>
-            &quot;User document for [roomID: &quot;
-                + roomID
+<span class="nc" id="L38">            &quot;User document for [roomID: &quot;</span>
+<span class="nc" id="L39">                + roomID</span>
                 + &quot;] not found. Check spelling or if the room exists&quot;);
       }
 <span class="nc" id="L42">      responseMap.put(&quot;data&quot;, data);</span>
@@ -45,7 +45,7 @@ public class RoomInfo implements Route {
 <span class="nc" id="L45">      responseMap.put(&quot;response_type&quot;, &quot;failure&quot;);</span>
 <span class="nc" id="L46">      responseMap.put(&quot;error&quot;, e.toString());</span>
 <span class="nc" id="L47">      e.printStackTrace();</span>
-<span class="nc" id="L48">    }</span>
+    }
 <span class="nc" id="L49">    return JsonUtil.toMoshiJson(responseMap);</span>
   }
 }

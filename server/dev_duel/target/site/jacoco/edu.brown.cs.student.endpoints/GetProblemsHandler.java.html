@@ -39,13 +39,13 @@ public class GetProblemsHandler implements Route {
 <span class="nc" id="L39">      System.err.println(&quot;_EMPTY_RESPONSE_ERR: no difficulty level or problemID provided&quot;);</span>
 <span class="nc" id="L40">      responseMap =</span>
 <span class="nc" id="L41">          Map.of(</span>
-              &quot;response_type&quot;,
-              &quot;failure&quot;,
-              &quot;error&quot;,
-              &quot;Must provide either difficulty or problemID parameter.&quot;,
-              &quot;requestInfo&quot;,
-              requestInfoMap);
-    } else {
+<span class="nc" id="L42">              &quot;response_type&quot;,</span>
+<span class="nc" id="L43">              &quot;failure&quot;,</span>
+<span class="nc" id="L44">              &quot;error&quot;,</span>
+<span class="nc" id="L45">              &quot;Must provide either difficulty or problemID parameter.&quot;,</span>
+<span class="nc" id="L46">              &quot;requestInfo&quot;,</span>
+<span class="nc" id="L47">              requestInfoMap);</span>
+<span class="nc" id="L48">    } else {</span>
 <span class="nc" id="L49">      String numParams = request.queryParams(&quot;number&quot;);</span>
 <span class="nc bnc" id="L50" title="All 2 branches missed.">      int number = numParams != null ? Integer.parseInt(numParams) : 1;</span>
 
@@ -57,13 +57,13 @@ public class GetProblemsHandler implements Route {
 <span class="nc" id="L57">        e.printStackTrace();</span>
 <span class="nc" id="L58">        responseMap =</span>
 <span class="nc" id="L59">            Map.of(</span>
-                &quot;response_type&quot;,
-                &quot;failure&quot;,
-                &quot;error&quot;,
-                &quot;Internal server error.&quot;,
-                &quot;requestInfo&quot;,
-                requestInfoMap);
-<span class="nc" id="L66">      }</span>
+<span class="nc" id="L60">                &quot;response_type&quot;,</span>
+<span class="nc" id="L61">                &quot;failure&quot;,</span>
+<span class="nc" id="L62">                &quot;error&quot;,</span>
+<span class="nc" id="L63">                &quot;Internal server error.&quot;,</span>
+<span class="nc" id="L64">                &quot;requestInfo&quot;,</span>
+<span class="nc" id="L65">                requestInfoMap);</span>
+      }
     }
     // return response Map.
 <span class="nc" id="L69">    responseMap =</span>
@@ -83,7 +83,7 @@ public class GetProblemsHandler implements Route {
    */
   private List&lt;Map&lt;String, Object&gt;&gt; handleResponseBody(
       String difficulty, int number, String problemID) throws Exception {
-    List&lt;Map&lt;String, Object&gt;&gt; problems =
+<span class="nc" id="L86">    List&lt;Map&lt;String, Object&gt;&gt; problems =</span>
 <span class="nc bnc" id="L87" title="All 2 branches missed.">        (problemID != null)</span>
 <span class="nc" id="L88">            ? List.of(this.db.getProblem(problemID))</span>
 <span class="nc" id="L89">            : this.db.getProblems(difficulty, number);</span>
@@ -98,11 +98,11 @@ public class GetProblemsHandler implements Route {
 <span class="nc" id="L98">      List&lt;TestRecord&gt; testsList = JsonUtil.toObjectList(testString, TestRecord.class);</span>
 <span class="nc" id="L99">      Map&lt;String, String&gt; toCache =</span>
 <span class="nc" id="L100">          Map.of(</span>
-              &quot;test&quot;,
-              testString,
-              &quot;expectExact&quot;,
+<span class="nc" id="L101">              &quot;test&quot;,</span>
+<span class="nc" id="L102">              testString,</span>
+<span class="nc" id="L103">              &quot;expectExact&quot;,</span>
 <span class="nc" id="L104">              problem.get(&quot;expectExact&quot;).toString(),</span>
-              &quot;returnType&quot;,
+<span class="nc" id="L105">              &quot;returnType&quot;,</span>
 <span class="nc" id="L106">              problem.get(&quot;returnType&quot;).toString());</span>
 <span class="nc" id="L107">      this.cache.put(key, toCache);</span>
 
@@ -115,21 +115,21 @@ public class GetProblemsHandler implements Route {
       // append this problem to response body.
 <span class="nc" id="L116">      response.add(</span>
 <span class="nc" id="L117">          Map.of(</span>
-              &quot;problemID&quot;,
+<span class="nc" id="L118">              &quot;problemID&quot;,</span>
 <span class="nc" id="L119">              problem.get(&quot;problemID&quot;),</span>
-              &quot;name&quot;,
+<span class="nc" id="L120">              &quot;name&quot;,</span>
 <span class="nc" id="L121">              problem.get(&quot;name&quot;),</span>
-              &quot;signature&quot;,
+<span class="nc" id="L122">              &quot;signature&quot;,</span>
 <span class="nc" id="L123">              problem.get(&quot;signature&quot;),</span>
-              &quot;description&quot;,
+<span class="nc" id="L124">              &quot;description&quot;,</span>
 <span class="nc" id="L125">              problem.get(&quot;description&quot;),</span>
-              &quot;tests&quot;,
-              sampleTests,
-              &quot;difficulty&quot;,
+<span class="nc" id="L126">              &quot;tests&quot;,</span>
+<span class="nc" id="L127">              sampleTests,</span>
+<span class="nc" id="L128">              &quot;difficulty&quot;,</span>
 <span class="nc" id="L129">              problem.get(&quot;difficulty&quot;),</span>
-              &quot;params&quot;,
+<span class="nc" id="L130">              &quot;params&quot;,</span>
 <span class="nc" id="L131">              problem.get(&quot;params&quot;)));</span>
-<span class="nc" id="L132">    }</span>
+    }
 
 <span class="nc" id="L134">    return response;</span>
   }

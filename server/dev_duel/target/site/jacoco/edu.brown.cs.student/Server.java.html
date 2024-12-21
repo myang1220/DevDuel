@@ -41,7 +41,7 @@ import spark.Spark;
 <span class="nc" id="L41">    AuthMiddleware.apply();</span>
     // Allow full access to the API
 <span class="nc" id="L43">    after(</span>
-        (request, response) -&gt; {
+<span class="nc" id="L44">        (request, response) -&gt; {</span>
 <span class="nc" id="L45">          response.header(&quot;Access-Control-Allow-Origin&quot;, &quot;*&quot;);</span>
 <span class="nc" id="L46">          response.header(&quot;Access-Control-Allow-Methods&quot;, &quot;*&quot;);</span>
 <span class="nc" id="L47">        });</span>
@@ -75,7 +75,7 @@ import spark.Spark;
 <span class="nc" id="L75">      Spark.get(&quot;getproblem&quot;, new GetProblemsHandler(firestoreUtils, problemCache));</span>
 
 <span class="nc" id="L77">      Spark.notFound(</span>
-          (request, response) -&gt; {
+<span class="nc" id="L78">          (request, response) -&gt; {</span>
 <span class="nc" id="L79">            response.status(404); // Not Found</span>
 <span class="nc" id="L80">            System.out.println(&quot;error: endpoint doesnt exist&quot;);</span>
 <span class="nc" id="L81">            return &quot;404 Not Found - The requested endpoint does not exist.&quot;;</span>
@@ -87,9 +87,9 @@ import spark.Spark;
 <span class="nc" id="L87">    } catch (Exception e) {</span>
 <span class="nc" id="L88">      e.printStackTrace();</span>
 <span class="nc" id="L89">      System.err.println(</span>
-          &quot;Error: Could not initialize Firebase. Likely due to firebase_config.json not being found. Exiting.&quot;);
+<span class="nc" id="L90">          &quot;Error: Could not initialize Firebase. Likely due to firebase_config.json not being found. Exiting.&quot;);</span>
 <span class="nc" id="L91">      System.exit(1);</span>
-<span class="nc" id="L92">    }</span>
+    }
 <span class="nc" id="L93">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

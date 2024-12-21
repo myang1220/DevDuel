@@ -35,8 +35,8 @@ public class UserInfo implements Route {
 <span class="nc bnc" id="L35" title="All 2 branches missed.">      if (data == null) { // check to make sure something was retrieved. getDocument for firestore</span>
         // returns null if nothing
 <span class="nc" id="L37">        throw new IllegalArgumentException(</span>
-            &quot;User document for [userID: &quot;
-                + userID
+<span class="nc" id="L38">            &quot;User document for [userID: &quot;</span>
+<span class="nc" id="L39">                + userID</span>
                 + &quot;] not found. Check spelling or if the user exists&quot;);
       }
 <span class="nc" id="L42">      responseMap.put(&quot;data&quot;, data);</span>
@@ -45,7 +45,7 @@ public class UserInfo implements Route {
 <span class="nc" id="L45">      responseMap.put(&quot;response_type&quot;, &quot;failure&quot;);</span>
 <span class="nc" id="L46">      responseMap.put(&quot;error&quot;, e.toString());</span>
 <span class="nc" id="L47">      e.printStackTrace();</span>
-<span class="nc" id="L48">    }</span>
+    }
 <span class="nc" id="L49">    return JsonUtil.toMoshiJson(responseMap);</span>
   }
 }

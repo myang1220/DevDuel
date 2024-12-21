@@ -22,16 +22,16 @@ import java.util.Map;
 <span class="nc" id="L22">  public record ApiResponseRecord(String message, ApiResponseRunFieldRecord run) {}</span>
 
 <span class="nc" id="L24">  public record ProblemRecord(</span>
-      String problemID,
-      String name,
-      String description,
-      String difficulty,
-      boolean expectExact,
-      String returnType,
-      Map&lt;String, String&gt; signature,
-      List&lt;Map&lt;String, String&gt;&gt; tests) {}
+<span class="nc" id="L25">      String problemID,</span>
+<span class="nc" id="L26">      String name,</span>
+<span class="nc" id="L27">      String description,</span>
+<span class="nc" id="L28">      String difficulty,</span>
+<span class="nc" id="L29">      boolean expectExact,</span>
+<span class="nc" id="L30">      String returnType,</span>
+<span class="nc" id="L31">      Map&lt;String, String&gt; signature,</span>
+<span class="nc" id="L32">      List&lt;Map&lt;String, String&gt;&gt; tests) {}</span>
 
 <span class="nc" id="L34">  public record CodeRunResponseRecord(</span>
-      String score, List&lt;String&gt; output, List&lt;Map&lt;String, String&gt;&gt; tests, String response_type) {}
+<span class="nc" id="L35">      String score, List&lt;String&gt; output, List&lt;Map&lt;String, String&gt;&gt; tests, String response_type) {}</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

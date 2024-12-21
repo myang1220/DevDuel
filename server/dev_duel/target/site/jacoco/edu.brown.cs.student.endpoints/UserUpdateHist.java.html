@@ -57,7 +57,7 @@ public class UserUpdateHist implements Route {
 <span class="nc" id="L57">      Map&lt;String, Object&gt; data = this.storageManager.getDocument(&quot;Users&quot;, userID);</span>
 <span class="nc bnc" id="L58" title="All 2 branches missed.">      if (data == null) {</span>
 <span class="nc" id="L59">        throw new IllegalArgumentException(</span>
-            &quot;User document not found. Check spelling or if the user exists&quot;);
+<span class="nc" id="L60">            &quot;User document not found. Check spelling or if the user exists&quot;);</span>
       }
 <span class="nc bnc" id="L62" title="All 2 branches missed.">      if (win) { // update wins before anything else</span>
 <span class="nc bnc" id="L63" title="All 2 branches missed.">        if (data.containsKey(&quot;wins&quot;)) {</span>
@@ -67,7 +67,7 @@ public class UserUpdateHist implements Route {
 <span class="nc" id="L67">            data.put(&quot;wins&quot;, wins);</span>
 <span class="nc" id="L68">          } catch (NumberFormatException e) {</span>
 <span class="nc" id="L69">            throw new InterruptedException(&quot;Value of wins in user &quot; + userID + &quot;not a number&quot;);</span>
-<span class="nc" id="L70">          }</span>
+          }
         }
       }
 <span class="nc bnc" id="L73" title="All 2 branches missed.">      if (data.containsKey(&quot;code&quot;)) {</span>
@@ -89,15 +89,15 @@ public class UserUpdateHist implements Route {
 <span class="nc" id="L89">                codeMap.put(&quot;problem&quot; + problemID, problemMap);</span>
 <span class="nc" id="L90">                data.put(&quot;code&quot;, codeMap);</span>
 <span class="nc" id="L91">                this.storageManager.updateDocument(&quot;Users&quot;, userID, data);</span>
-              } else {
+<span class="nc" id="L92">              } else {</span>
                 // new score not as good as old score, only need to update win
 <span class="nc" id="L94">                this.storageManager.updateDocument(&quot;Users&quot;, userID, data);</span>
               }
 <span class="nc" id="L96">            } else {</span>
 <span class="nc" id="L97">              throw new IllegalArgumentException(</span>
-                  &quot;for some reason problem map does not contain field score. Uh oh&quot;);
+<span class="nc" id="L98">                  &quot;for some reason problem map does not contain field score. Uh oh&quot;);</span>
             }
-<span class="nc" id="L100">          } else {</span>
+          } else {
             // if the problem doesnt exist, add the entry for this problem
 <span class="nc" id="L102">            Map&lt;String, Object&gt; additionalMap = new HashMap&lt;&gt;();</span>
 <span class="nc" id="L103">            additionalMap.put(&quot;code&quot;, code);</span>
@@ -110,7 +110,7 @@ public class UserUpdateHist implements Route {
           }
 <span class="nc" id="L111">        } catch (ClassCastException | NullPointerException e) {</span>
 <span class="nc" id="L112">          throw new IllegalArgumentException(&quot;'code' exists but is not properly structured.&quot;);</span>
-<span class="nc" id="L113">        }</span>
+        }
       } else {
         // if there is no code field, add one
 <span class="nc" id="L116">        Map&lt;String, Object&gt; codeMap = new HashMap&lt;&gt;();</span>
@@ -133,7 +133,7 @@ public class UserUpdateHist implements Route {
 <span class="nc" id="L133">      responseMap.put(&quot;response_type&quot;, &quot;failure&quot;);</span>
 <span class="nc" id="L134">      responseMap.put(&quot;error&quot;, e.toString());</span>
 <span class="nc" id="L135">      e.printStackTrace();</span>
-<span class="nc" id="L136">    }</span>
+    }
 <span class="nc" id="L137">    return JsonUtil.toMoshiJson(responseMap);</span>
   }
 
@@ -155,7 +155,7 @@ public class UserUpdateHist implements Route {
       }
 <span class="nc" id="L156">    } catch (NumberFormatException e) {</span>
 <span class="nc" id="L157">      throw new IllegalArgumentException(&quot;Invalid score format: &quot; + score);</span>
-<span class="nc" id="L158">    }</span>
+    }
 <span class="nc" id="L159">    return scoreDouble;</span>
   }
 }

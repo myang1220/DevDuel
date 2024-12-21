@@ -38,7 +38,7 @@ public class MockStorage implements IStorage {
       throws IllegalArgumentException {
 <span class="nc bnc" id="L39" title="All 6 branches missed.">    if (collection_id == null || doc_id == null || data == null) {</span>
 <span class="nc" id="L40">      throw new IllegalArgumentException(</span>
-          &quot;updateDocument: collection_id, doc_id, or data cannot be null&quot;);
+<span class="nc" id="L41">          &quot;updateDocument: collection_id, doc_id, or data cannot be null&quot;);</span>
     }
 
 <span class="nc" id="L44">    Map&lt;String, Map&lt;String, Object&gt;&gt; targetCollection = getCollectionById(collection_id);</span>
@@ -48,7 +48,7 @@ public class MockStorage implements IStorage {
 <span class="nc bnc" id="L48" title="All 2 branches missed.">    if (existingDoc != null) {</span>
       // Merge the existing document data with the new data
 <span class="nc" id="L50">      mergeFields(existingDoc, data); // Adds or updates the fields in the existing document</span>
-    } else {
+<span class="nc" id="L51">    } else {</span>
       // If the document does not exist, create a new document if needed
 <span class="nc" id="L53">      targetCollection.put(doc_id, new HashMap&lt;&gt;(data));</span>
     }
@@ -93,11 +93,11 @@ public class MockStorage implements IStorage {
       // Remove the document from the collection
 <span class="nc" id="L94">      targetCollection.remove(docID);</span>
 <span class="nc" id="L95">      System.out.println(</span>
-          &quot;Document with ID &quot; + docID + &quot; has been deleted from collection: &quot; + collectionID);
-    } else {
+<span class="nc" id="L96">          &quot;Document with ID &quot; + docID + &quot; has been deleted from collection: &quot; + collectionID);</span>
+<span class="nc" id="L97">    } else {</span>
       // If the document does not exist, throw an exception
 <span class="nc" id="L99">      throw new IllegalArgumentException(</span>
-          &quot;Document with ID &quot; + docID + &quot; does not exist in collection: &quot; + collectionID);
+<span class="nc" id="L100">          &quot;Document with ID &quot; + docID + &quot; does not exist in collection: &quot; + collectionID);</span>
     }
 <span class="nc" id="L102">  }</span>
 
@@ -126,7 +126,7 @@ public class MockStorage implements IStorage {
 
     // Sort the collection based on the specified field
 <span class="nc" id="L128">    collection.sort(</span>
-        (map1, map2) -&gt; {
+<span class="nc" id="L129">        (map1, map2) -&gt; {</span>
 <span class="nc" id="L130">          Comparable&lt;Object&gt; value1 = (Comparable&lt;Object&gt;) map1.get(field);</span>
 <span class="nc" id="L131">          Comparable&lt;Object&gt; value2 = (Comparable&lt;Object&gt;) map2.get(field);</span>
 
@@ -174,7 +174,7 @@ public class MockStorage implements IStorage {
         // Otherwise, overwrite the value in the target map
 <span class="nc" id="L175">        target.put(key, value);</span>
       }
-<span class="nc" id="L177">    }</span>
+    }
 <span class="nc" id="L178">  }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

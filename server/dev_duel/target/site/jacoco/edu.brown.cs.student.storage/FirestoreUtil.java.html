@@ -51,7 +51,7 @@ public class FirestoreUtil implements IStorage {
 <span class="nc" id="L51">      System.err.println(&quot;Firebase Initialization Error:&quot;);</span>
 <span class="nc" id="L52">      e.printStackTrace();</span>
 <span class="nc" id="L53">      throw e; // Re-throw to maintain original method signature</span>
-<span class="nc" id="L54">    }</span>
+    }
 <span class="nc" id="L55">  }</span>
 
   // adds a document or OVERWRITES it if it already exists
@@ -60,7 +60,7 @@ public class FirestoreUtil implements IStorage {
       throws IllegalArgumentException, ExecutionException, InterruptedException {
 <span class="nc bnc" id="L61" title="All 6 branches missed.">    if (collection_id == null || doc_id == null || data == null) {</span>
 <span class="nc" id="L62">      throw new IllegalArgumentException(</span>
-          &quot;addDocument: collection_id, doc_id, or data cannot be null&quot;);
+<span class="nc" id="L63">          &quot;addDocument: collection_id, doc_id, or data cannot be null&quot;);</span>
     }
 <span class="nc" id="L65">    DocumentReference docRef = this.db.collection(collection_id).document(doc_id);</span>
 <span class="nc" id="L66">    ApiFuture&lt;WriteResult&gt; future = docRef.set(data);</span>
@@ -74,7 +74,7 @@ public class FirestoreUtil implements IStorage {
       throws IllegalArgumentException {
 <span class="nc bnc" id="L75" title="All 6 branches missed.">    if (collection_id == null || doc_id == null || data == null) {</span>
 <span class="nc" id="L76">      throw new IllegalArgumentException(</span>
-          &quot;updateDocument: collection_id, doc_id, or data cannot be null&quot;);
+<span class="nc" id="L77">          &quot;updateDocument: collection_id, doc_id, or data cannot be null&quot;);</span>
     }
 <span class="nc" id="L79">    DocumentReference docRef = this.db.collection(collection_id).document(doc_id);</span>
 <span class="nc" id="L80">    docRef.set(data, SetOptions.merge());</span>
@@ -124,7 +124,7 @@ public class FirestoreUtil implements IStorage {
 <span class="nc" id="L124">    List&lt;Map&lt;String, Object&gt;&gt; collection = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L125" title="All 2 branches missed.">    for (QueryDocumentSnapshot document : documents) {</span>
 <span class="nc" id="L126">      collection.add(document.getData());</span>
-<span class="nc" id="L127">    }</span>
+    }
 <span class="nc" id="L128">    return collection; // note this could return null I think</span>
   }
 
@@ -191,7 +191,7 @@ public class FirestoreUtil implements IStorage {
 <span class="nc" id="L191">    List&lt;Map&lt;String, Object&gt;&gt; resultList = new ArrayList&lt;&gt;();</span>
 <span class="nc bnc" id="L192" title="All 2 branches missed.">    for (QueryDocumentSnapshot document : documents) {</span>
 <span class="nc" id="L193">      resultList.add(document.getData());</span>
-<span class="nc" id="L194">    }</span>
+    }
 <span class="nc" id="L195">    return resultList;</span>
   }
 }

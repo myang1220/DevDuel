@@ -116,8 +116,8 @@ import java.util.regex.Pattern;
     // todo: handle error with missing file later...
 <span class="nc" id="L117">    Type type =</span>
 <span class="nc" id="L118">        Types.newParameterizedType(</span>
-            Map.class,
-            String.class,
+<span class="nc" id="L119">            Map.class,</span>
+<span class="nc" id="L120">            String.class,</span>
 <span class="nc" id="L121">            Types.newParameterizedType(Map.class, String.class, String.class));</span>
 <span class="nc" id="L122">    JsonAdapter&lt;Map&lt;String, Map&lt;String, String&gt;&gt;&gt; adapter = moshi.adapter(type);</span>
 <span class="nc" id="L123">    try (InputStream is = new FileInputStream(filepath)) {</span>
